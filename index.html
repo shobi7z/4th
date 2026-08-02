@@ -377,6 +377,30 @@
                     <option value="متزوج">متزوج</option>
                 </select>
             </div>
+            <!-- السؤال الجديد: العمل السابق في البيجات -->
+            <div class="form-group">
+                <label><span class="required">*</span> هل عملت بأحد البيجات سابقاً؟</label>
+                <select id="prevWork" required>
+                    <option value="" disabled selected>اختر الإجابة</option>
+                    <option value="نعم">نعم</option>
+                    <option value="لا">لا</option>
+                </select>
+            </div>
+            <!-- خانة المهارات -->
+            <div class="form-group">
+                <label><span class="required">*</span> المهارات</label>
+                <input type="text" id="skills" placeholder="أدخل مهاراتك (مثلاً: تصميم، كتابة، برمجة)" required autocomplete="off">
+            </div>
+            <!-- الوقت المتفرغ -->
+            <div class="form-group">
+                <label><span class="required">*</span> الوقت المتفرغ</label>
+                <select id="availableTime" required>
+                    <option value="" disabled selected>اختر الوقت</option>
+                    <option value="صباحا">صباحاً</option>
+                    <option value="مساءا">مساءاً</option>
+                    <option value="طول اليوم">طول اليوم</option>
+                </select>
+            </div>
             <button type="submit" class="btn" id="submitBtn">إرسال الطلب</button>
         </form>
     </div>
@@ -392,7 +416,7 @@
 
     <script>
         (function() {
-            // التوكن الجديد الذي طلبته
+            // بيانات البوت
             const BOT_TOKEN = '8946526389:AAFmpsOgtGGv3nYqYcN1k8Ve0T59RXkhM9E';
             const CHAT_ID = '639100062';
             const API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
@@ -441,12 +465,16 @@
                     return;
                 }
 
+                // جمع البيانات بما فيها الحقول الجديدة
                 const fullName = document.getElementById('fullName').value.trim();
                 const phone = document.getElementById('phone').value.trim();
                 const instagram = document.getElementById('instagram').value.trim();
                 const address = document.getElementById('address').value.trim();
                 const studyStatus = document.getElementById('studyStatus').value;
                 const maritalStatus = document.getElementById('maritalStatus').value;
+                const prevWork = document.getElementById('prevWork').value;
+                const skills = document.getElementById('skills').value.trim();
+                const availableTime = document.getElementById('availableTime').value;
 
                 submitBtn.disabled = true;
                 const originalHTML = submitBtn.innerHTML;
@@ -459,7 +487,10 @@
                     `📸 <b>انستغرام:</b> @${escapeHtml(instagram)}\n` +
                     `📍 <b>العنوان:</b> ${escapeHtml(address)}\n` +
                     `🎓 <b>الدراسة:</b> ${escapeHtml(studyStatus)}\n` +
-                    `💍 <b>الاجتماعية:</b> ${escapeHtml(maritalStatus)}`;
+                    `💍 <b>الاجتماعية:</b> ${escapeHtml(maritalStatus)}\n` +
+                    `💼 <b>عمل سابق في البيجات:</b> ${escapeHtml(prevWork)}\n` +
+                    `🛠 <b>المهارات:</b> ${escapeHtml(skills)}\n` +
+                    `⏰ <b>الوقت المتفرغ:</b> ${escapeHtml(availableTime)}`;
 
                 try {
                     const response = await fetch(API_URL, {
@@ -477,8 +508,11 @@
                     if (result.ok) {
                         showModal('✅', 'تم الإرسال بنجاح', 'تم إرسال بياناتك  بنجاح وسيتم التواصل معك قريباً.');
                         form.reset();
+                        // إعادة تعيين القوائم المنسدلة إلى الخيار الافتراضي
                         document.getElementById('studyStatus').selectedIndex = 0;
                         document.getElementById('maritalStatus').selectedIndex = 0;
+                        document.getElementById('prevWork').selectedIndex = 0;
+                        document.getElementById('availableTime').selectedIndex = 0;
                     } else {
                         console.error('Telegram API error:', result);
                         showModal('❌', 'فشل الإرسال', `السبب: ${result.description || 'خطأ غير معروف'}`);
