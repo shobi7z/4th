@@ -1,1277 +1,501 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
- <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Medical Ultrasound Controls</title>
-  <script src="/_sdk/element_sdk.js"></script>
-  <style>
-    body {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100%;
-      height: 100%;
-    }
-    
-    html {
-      height: 100%;
-    }
-    
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 40px 20px;
-      position: relative;
-    }
-    
-    .profile-image {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 5px solid white;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-      z-index: 100;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    
-    .profile-image:hover {
-      transform: scale(1.1);
-      box-shadow: 0 12px 35px rgba(0,0,0,0.4);
-    }
-    
-    .header {
-      text-align: center;
-      color: white;
-      margin-bottom: 50px;
-    }
-    
-    .header h1 {
-      font-size: 48px;
-      margin: 0 0 10px 0;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    }
-    
-    .header p {
-      font-size: 20px;
-      opacity: 0.9;
-      margin: 0;
-    }
-    
-    .controls-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 25px;
-      margin-bottom: 30px;
-    }
-    
-    .control-card {
-      background: white;
-      border-radius: 15px;
-      padding: 25px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .control-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-    }
-    
-    .control-card.active {
-      border: 3px solid #667eea;
-    }
-    
-    .icon-container {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 50%;
-      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-    }
-    
-    .icon-container svg {
-      width: 45px;
-      height: 45px;
-      fill: white;
-    }
-    
-    .control-name {
-      font-size: 22px;
-      font-weight: bold;
-      color: #333;
-      text-align: center;
-      margin-bottom: 15px;
-    }
-    
-    .control-description {
-      font-size: 16px;
-      color: #666;
-      text-align: center;
-      line-height: 1.6;
-      min-height: 80px;
-      display: none;
-    }
-    
-    .control-description.show {
-      display: block;
-      animation: fadeIn 0.3s ease;
-    }
-    
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    .info-panel {
-      background: white;
-      border-radius: 15px;
-      padding: 30px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      display: none;
-    }
-    
-    .info-panel.show {
-      display: block;
-      animation: slideUp 0.4s ease;
-    }
-    
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    .info-panel h2 {
-      color: #667eea;
-      font-size: 28px;
-      margin: 0 0 15px 0;
-      text-align: center;
-    }
-    
-    .info-panel p {
-      color: #555;
-      font-size: 18px;
-      line-height: 1.8;
-      text-align: right;
-      margin: 0 0 30px 0;
-    }
-    
-    .visual-demo {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-top: 30px;
-    }
-    
-    .demo-box {
-      background: #f8f9fa;
-      border-radius: 12px;
-      padding: 20px;
-      text-align: center;
-    }
-    
-    .demo-box h3 {
-      color: #667eea;
-      font-size: 18px;
-      margin: 0 0 15px 0;
-      font-weight: bold;
-    }
-    
-    .button-visual {
-      background: linear-gradient(145deg, #2c3e50, #34495e);
-      border-radius: 8px;
-      padding: 20px;
-      margin: 10px auto;
-      max-width: 180px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.1);
-      border: 2px solid #1a252f;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      user-select: none;
-    }
-    
-    .button-visual:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.1);
-    }
-    
-    .button-visual:active {
-      transform: translateY(1px);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.1);
-    }
-    
-    .button-visual.active {
-      background: linear-gradient(145deg, #27ae60, #2ecc71);
-      border-color: #1e8449;
-    }
-    
-    .button-visual svg {
-      width: 50px;
-      height: 50px;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-      transition: all 0.3s ease;
-    }
-    
-    .button-label {
-      color: #ecf0f1;
-      font-size: 14px;
-      margin-top: 8px;
-      font-weight: bold;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-    }
-    
-    .control-slider {
-      width: 100%;
-      margin: 15px 0;
-      display: none;
-    }
-    
-    .control-slider.show {
-      display: block;
-    }
-    
-    .slider-container {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    
-    .slider-container input[type="range"] {
-      flex: 1;
-      height: 6px;
-      border-radius: 3px;
-      background: #ddd;
-      outline: none;
-      -webkit-appearance: none;
-    }
-    
-    .slider-container input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: #667eea;
-      cursor: pointer;
-    }
-    
-    .slider-container input[type="range"]::-moz-range-thumb {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: #667eea;
-      cursor: pointer;
-      border: none;
-    }
-    
-    .slider-value {
-      min-width: 50px;
-      text-align: center;
-      font-weight: bold;
-      color: #667eea;
-      font-size: 14px;
-    }
-    
-    .slider-label {
-      font-size: 13px;
-      color: #666;
-      margin-bottom: 5px;
-      text-align: right;
-    }
-    
-    .screen-visual {
-      background: linear-gradient(145deg, #1a1a1a, #2d2d2d);
-      border-radius: 8px;
-      padding: 15px;
-      margin: 10px auto;
-      border: 4px solid #34495e;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
-    }
-    
-    .screen-content {
-      background: #000;
-      border-radius: 4px;
-      padding: 20px;
-      min-height: 180px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .screen-effect {
-      width: 100%;
-      height: 100%;
-    }
-    
-    .click-hint {
-      text-align: center;
-      color: white;
-      font-size: 16px;
-      margin-top: 30px;
-      opacity: 0.8;
-    }
-    
-    @media (max-width: 768px) {
-      .visual-demo {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
-  <style>@view-transition { navigation: auto; }</style>
-  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
-  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
- </head>
- <body>
-  <div class="container"><img src="" alt="Profile" class="profile-image" onerror="this.style.display='none';">
-   <div class="header">
-    <h1 id="page-title">دليل أزرار جهاز السونار الطبي</h1>
-    <p id="subtitle">اضغط على أي زر لمعرفة وظيفته</p>
-    <p id="subtitle">تم تصميم هذا الموقع من قبل الاستاذ مجتبى كريم</p>
-   </div>
-   <div class="controls-grid">
-    <div class="control-card" data-control="power">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Power
-     </div>
-     <div class="control-description">
-      زر التشغيل والإيقاف
-     </div>
-    </div>
-    <div class="control-card" data-control="freeze">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Freeze
-     </div>
-     <div class="control-description">
-      زر التجميد
-     </div>
-    </div>
-    <div class="control-card" data-control="gain">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Gain
-     </div>
-     <div class="control-description">
-      زر التضخيم
-     </div>
-    </div>
-    <div class="control-card" data-control="depth">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M7 10l5 5 5-5z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Depth
-     </div>
-     <div class="control-description">
-      زر العمق
-     </div>
-    </div>
-    <div class="control-card" data-control="zoom">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" /> <path d="M12 10h-2v2H9v-2H7V9h2V7h1v2h2v1z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Zoom
-     </div>
-     <div class="control-description">
-      زر التكبير
-     </div>
-    </div>
-    <div class="control-card" data-control="measure">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Measure
-     </div>
-     <div class="control-description">
-      زر القياس
-     </div>
-    </div>
-    <div class="control-card" data-control="print">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Print
-     </div>
-     <div class="control-description">
-      زر الطباعة
-     </div>
-    </div>
-    <div class="control-card" data-control="doppler">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Doppler
-     </div>
-     <div class="control-description">
-      زر الدوبلر
-     </div>
-    </div>
-    <div class="control-card" data-control="tgc">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      TGC
-     </div>
-     <div class="control-description">
-      التحكم في التعويض الزمني
-     </div>
-    </div>
-    <div class="control-card" data-control="probe">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM8 20H4v-4h4v4zm0-6H4v-4h4v4zm0-6H4V4h4v4zm6 12h-4v-4h4v4zm0-6h-4v-4h4v4zm0-6h-4V4h4v4zm6 12h-4v-4h4v4zm0-6h-4v-4h4v4zm0-6h-4V4h4v4z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Probe Select
-     </div>
-     <div class="control-description">
-      اختيار المسبار
-     </div>
-    </div>
-    <div class="control-card" data-control="cine">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M8 5v14l11-7z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Cine Loop
-     </div>
-     <div class="control-description">
-      حلقة السينما
-     </div>
-    </div>
-    <div class="control-card" data-control="annotation">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Annotation
-     </div>
-     <div class="control-description">
-      زر التعليق
-     </div>
-    </div>
-    <div class="control-card" data-control="bmode">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      B-Mode
-     </div>
-     <div class="control-description">
-      وضع B
-     </div>
-    </div>
-    <div class="control-card" data-control="mmode">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      M-Mode
-     </div>
-     <div class="control-description">
-      وضع M
-     </div>
-    </div>
-    <div class="control-card" data-control="colorflow">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Color Flow
-     </div>
-     <div class="control-description">
-      تدفق الألوان
-     </div>
-    </div>
-    <div class="control-card" data-control="cwdoppler">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      CW Doppler
-     </div>
-     <div class="control-description">
-      دوبلر الموجة المستمرة
-     </div>
-    </div>
-    <div class="control-card" data-control="focus">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Focus
-     </div>
-     <div class="control-description">
-      زر التركيز
-     </div>
-    </div>
-    <div class="control-card" data-control="frequency">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Frequency
-     </div>
-     <div class="control-description">
-      زر التردد
-     </div>
-    </div>
-    <div class="control-card" data-control="contrast">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93s3.05-7.44 7-7.93v15.86zm2-15.86c1.03.13 2 .45 2.87.93H13v-.93zM13 7h5.24c.25.31.48.65.68 1H13V7zm0 3h6.74c.08.33.15.66.19 1H13v-1zm0 9.93V19h2.87c-.87.48-1.84.8-2.87.93zM18.24 17H13v-1h5.92c-.2.35-.43.69-.68 1zm1.5-3H13v-1h6.93c-.04.34-.11.67-.19 1z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Contrast
-     </div>
-     <div class="control-description">
-      زر التباين
-     </div>
-    </div>
-    <div class="control-card" data-control="brightness">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Brightness
-     </div>
-     <div class="control-description">
-      زر السطوع
-     </div>
-    </div>
-    <div class="control-card" data-control="dynamic">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M10 20h4V4h-4v16zm-6 0h4v-8H4v8zM16 9v11h4V9h-4z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Dynamic Range
-     </div>
-     <div class="control-description">
-      المدى الديناميكي
-     </div>
-    </div>
-    <div class="control-card" data-control="store">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Store
-     </div>
-     <div class="control-description">
-      زر الحفظ
-     </div>
-    </div>
-    <div class="control-card" data-control="review">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 14H9.5v-2h-2v2H6V9h1.5v2.5h2V9H11v8zm7-2h-1.5v.5h-2V15H16v-2.5h-1.5V12H16v-.5h1.5v-1h-3V15c0 .83.67 1.5 1.5 1.5h2c.83 0 1.5-.67 1.5-1.5v-4c0-.83-.67-1.5-1.5-1.5h-2v1.5h3V15z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Review
-     </div>
-     <div class="control-description">
-      زر المراجعة
-     </div>
-    </div>
-    <div class="control-card" data-control="patient">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Patient Info
-     </div>
-     <div class="control-description">
-      معلومات المريض
-     </div>
-    </div>
-    <div class="control-card" data-control="report">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Report
-     </div>
-     <div class="control-description">
-      زر التقرير
-     </div>
-    </div>
-    <div class="control-card" data-control="archive">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Archive
-     </div>
-     <div class="control-description">
-      زر الأرشفة
-     </div>
-    </div>
-    <div class="control-card" data-control="export">
-     <div class="icon-container">
-      <svg viewbox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z" />
-      </svg>
-     </div>
-     <div class="control-name">
-      Export
-     </div>
-     <div class="control-description">
-      زر التصدير
-     </div>
-    </div>
-   </div>
-   <div class="info-panel" id="infoPanel">
-    <h2 id="infoTitle"></h2>
-    <p id="infoDescription"></p>
-    <div class="visual-demo">
-     <div class="demo-box">
-      <h3>🎛️ شكل الزر على الجهاز</h3>
-      <div class="button-visual" id="buttonVisual">
-       <svg viewbox="0 0 24 24" id="buttonIcon"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z" />
-       </svg>
-       <div class="button-label" id="buttonLabel">
-        POWER
-       </div>
-      </div>
-      <div class="control-slider" id="controlSlider">
-       <div class="slider-label" id="sliderLabel">
-        التحكم
-       </div>
-       <div class="slider-container"><input type="range" id="controlRange" min="0" max="100" value="50"> <span class="slider-value" id="sliderValue">50</span>
-       </div>
-      </div>
-     </div>
-     <div class="demo-box">
-      <h3>📺 التأثير على الشاشة</h3>
-      <div class="screen-visual">
-       <div class="screen-content" id="screenEffect">
-        <svg viewbox="0 0 200 150" class="screen-effect"><rect width="200" height="150" fill="#000" /> <text x="100" y="75" text-anchor="middle" fill="#00ff00" font-size="16" font-family="monospace">
-          SYSTEM READY
-         </text>
-        </svg>
-       </div>
-      </div>
-     </div>
-    </div>
-   </div>
-   <div class="click-hint">
-    💡 اضغط على أي بطاقة لعرض التفاصيل الكاملة والرسومات التوضيحية
-   </div>
-  </div>
-  <script>
-    const defaultConfig = {
-      page_title: "دليل أزرار جهاز السونار الطبي",
-      subtitle: "اضغط على أي زر لمعرفة وظيفته",
-      primary_color: "#667eea",
-      secondary_color: "#764ba2",
-      background_color: "#ffffff",
-      text_color: "#333333",
-      card_background: "#ffffff",
-      font_family: "Segoe UI",
-      font_size: 16
-    };
-
-    let config = { ...defaultConfig };
-
-    let buttonStates = {
-      power: false,
-      freeze: false,
-      gain: 50,
-      depth: 50,
-      zoom: 1,
-      doppler: false,
-      bmode: true,
-      mmode: false,
-      colorflow: false,
-      focus: 50,
-      frequency: 50,
-      contrast: 50,
-      brightness: 50,
-      dynamic: 50
-    };
-
-    const controlsData = {
-      power: {
-        name: "Power",
-        description: "زر التشغيل والإيقاف - يستخدم لتشغيل وإطفاء جهاز السونار الطبي. يجب الانتظار بضع ثوان بعد التشغيل حتى يكتمل تحميل النظام.",
-        buttonLabel: "POWER",
-        iconPath: "M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z",
-        interactive: 'toggle',
-        getScreenEffect: (state) => state ? 
-          `<rect width="200" height="150" fill="#000"/><circle cx="100" cy="75" r="30" fill="none" stroke="#00ff00" stroke-width="2"/><text x="100" y="130" text-anchor="middle" fill="#00ff00" font-size="14" font-family="monospace">SYSTEM ON</text>` :
-          `<rect width="200" height="150" fill="#000"/><text x="100" y="75" text-anchor="middle" fill="#666" font-size="16" font-family="monospace">SYSTEM OFF</text>`
-      },
-      freeze: {
-        name: "Freeze",
-        description: "زر التجميد - يوقف الصورة المتحركة مؤقتاً للفحص الدقيق والقياسات. مفيد جداً عند الحاجة لدراسة لحظة معينة أو أخذ قياسات دقيقة.",
-        buttonLabel: "FREEZE",
-        iconPath: "M6 19h4V5H6v14zm8-14v14h4V5h-4z",
-        interactive: 'toggle',
-        getScreenEffect: (state) => state ?
-          `<rect width="200" height="150" fill="#000"/><ellipse cx="100" cy="75" rx="60" ry="40" fill="#1a1a1a" stroke="#888" stroke-width="1"/><text x="10" y="20" fill="#ffff00" font-size="16" font-family="monospace">❚❚ FROZEN</text>` :
-          `<rect width="200" height="150" fill="#000"/><ellipse cx="100" cy="75" rx="60" ry="40" fill="#1a1a1a" stroke="#888" stroke-width="1"/><text x="10" y="20" fill="#00ff00" font-size="16" font-family="monospace">▶ LIVE</text>`
-      },
-      gain: {
-        name: "Gain",
-        description: "زر التضخيم - يتحكم في سطوع الصورة وشدة الإشارة الصوتية المستقبلة. زيادة التضخيم تجعل الصورة أكثر سطوعاً ولكن قد تزيد الضوضاء.",
-        buttonLabel: "GAIN",
-        iconPath: "M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z",
-        interactive: 'slider',
-        sliderLabel: 'مستوى التضخيم',
-        getScreenEffect: (value) => {
-          const brightness = Math.floor(value * 0.9);
-          const barHeight = Math.floor(value * 0.6);
-          return `<rect width="200" height="150" fill="#000"/><ellipse cx="100" cy="75" rx="60" ry="40" fill="#${brightness.toString(16).padStart(2,'0')}${brightness.toString(16).padStart(2,'0')}${brightness.toString(16).padStart(2,'0')}" stroke="#aaa" stroke-width="1"/><rect x="170" y="30" width="20" height="90" fill="#222" stroke="#666" stroke-width="1"/><rect x="172" y="${120-barHeight}" width="16" height="${barHeight}" fill="#00ff00"/><text x="10" y="20" fill="#0f0" font-size="12">GAIN: ${value}%</text>`;
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>استمارة التقديم</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
         }
-      },
-      depth: {
-        name: "Depth",
-        description: "زر العمق - يتحكم في عمق المسح لرؤية الأنسجة العميقة أو السطحية. تقليل العمق يحسن دقة الصورة للأعضاء القريبة.",
-        buttonLabel: "DEPTH",
-        iconPath: "M7 10l5 5 5-5z",
-        interactive: 'slider',
-        sliderLabel: 'عمق المسح (سم)',
-        getScreenEffect: (value) => {
-          const depth = Math.floor(value * 0.2);
-          const ellipseY = 30 + (value * 0.6);
-          return `<rect width="200" height="150" fill="#000"/><line x1="10" y1="20" x2="10" y2="130" stroke="#666" stroke-width="1"/><text x="15" y="30" fill="#0ff" font-size="10">0cm</text><text x="15" y="60" fill="#0ff" font-size="10">5cm</text><text x="15" y="90" fill="#0ff" font-size="10">10cm</text><text x="15" y="120" fill="#0ff" font-size="10">${depth}cm</text><ellipse cx="100" cy="${ellipseY}" rx="50" ry="30" fill="#2a2a2a" stroke="#888" stroke-width="1"/>`;
-        }
-      },
-      zoom: {
-        name: "Zoom",
-        description: "زر التكبير - يكبر منطقة معينة من الصورة لفحص أدق للتفاصيل. يساعد في رؤية التفاصيل الصغيرة والتشوهات الدقيقة.",
-        buttonLabel: "ZOOM",
-        iconPath: "M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z",
-        interactive: 'slider',
-        sliderLabel: 'مستوى التكبير',
-        sliderMin: 10,
-        sliderMax: 50,
-        getScreenEffect: (value) => {
-          const zoomLevel = (value / 10).toFixed(1);
-          const rectSize = 120 - value;
-          const rectX = 100 - (rectSize / 2);
-          const rectY = 75 - (rectSize / 2);
-          const ellipseRx = 60 - (value * 0.3);
-          const ellipseRy = 40 - (value * 0.2);
-          return `<rect width="200" height="150" fill="#000"/><rect x="${rectX}" y="${rectY}" width="${rectSize}" height="${rectSize}" fill="#1a1a1a" stroke="#0ff" stroke-width="2" stroke-dasharray="5,5"/><ellipse cx="100" cy="75" rx="${ellipseRx}" ry="${ellipseRy}" fill="#3a3a3a" stroke="#aaa" stroke-width="1"/><text x="10" y="20" fill="#0ff" font-size="12">ZOOM x${zoomLevel}</text>`;
-        }
-      },
-      measure: {
-        name: "Measure",
-        description: "زر القياس - يسمح بقياس المسافات والمساحات والأحجام في الصورة. ضروري لتقييم حجم الأعضاء والكتل والأجنة.",
-        buttonLabel: "MEASURE",
-        iconPath: "M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z",
-        screenEffect: `<rect width="200" height="150" fill="#000"/><ellipse cx="100" cy="75" rx="40" ry="25" fill="#2a2a2a" stroke="#888" stroke-width="1"/><line x1="70" y1="75" x2="130" y2="75" stroke="#ff0" stroke-width="2"/><circle cx="70" cy="75" r="3" fill="#ff0"/><circle cx="130" cy="75" r="3" fill="#ff0"/><text x="85" y="65" fill="#ff0" font-size="12">3.2cm</text>`
-      },
-      print: {
-        name: "Print",
-        description: "زر الطباعة - يطبع الصورة الحالية أو يحفظها في ذاكرة الجهاز. يمكن طباعة الصور على ورق حراري أو حفظها رقمياً.",
-        buttonLabel: "PRINT",
-        iconPath: "M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z",
-        screenEffect: `<rect width="200" height="150" fill="#000"/><rect x="50" y="30" width="100" height="90" fill="#1a1a1a" stroke="#0f0" stroke-width="2"/><ellipse cx="100" cy="75" rx="30" ry="20" fill="#2a2a2a" stroke="#888" stroke-width="1"/><text x="60" y="135" fill="#0f0" font-size="10">SAVING IMAGE...</text>`
-      },
-      doppler: {
-        name: "Doppler",
-        description: "زر الدوبلر - يفعل وضع الدوبلر لقياس تدفق الدم وسرعته في الأوعية الدموية. يظهر التدفق بألوان مختلفة حسب الاتجاه والسرعة.",
-        buttonLabel: "DOPPLER",
-        iconPath: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z",
-        interactive: 'toggle',
-        getScreenEffect: (state) => state ?
-          `<rect width="200" height="150" fill="#000"/><ellipse cx="100" cy="75" rx="40" ry="25" fill="#2a2a2a" stroke="#888" stroke-width="1"/><path d="M 80 75 Q 90 65, 100 75 T 120 75" stroke="#f00" stroke-width="3" fill="none"/><path d="M 80 80 Q 90 90, 100 80 T 120 80" stroke="#00f" stroke-width="3" fill="none"/><text x="10" y="20" fill="#f0f" font-size="12">DOPPLER ON</text>` :
-          `<rect width="200" height="150" fill="#000"/><ellipse cx="100" cy="75" rx="40" ry="25" fill="#2a2a2a" stroke="#888" stroke-width="1"/><text x="10" y="20" fill="#666" font-size="12">DOPPLER OFF</text>`
-      },
-      tgc: {
-        name: "TGC",
-        description: "التحكم في التعويض الزمني - يضبط السطوع على أعماق مختلفة لتحسين جودة الصورة. يعوض عن ضعف الإشارة في الأنسجة العميقة.",
-        buttonLabel: "TGC",
-        iconPath: "M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z",
-        screenEffect: `<rect width="200" height="150" fill="#000"/><rect x="30" y="30" width="140" height="20" fill="#4a4a4a"/><rect x="30" y="55" width="140" height="20" fill="#3a3a3a"/><rect x="30" y="80" width="140" height="20" fill="#2a2a2a"/><rect x="30" y="105" width="140" height="20" fill="#1a1a1a"/><text x="10" y="20" fill="#0f0" font-size="10">TGC</text>`
-      },
-      probe: {
-        name: "Probe Select",
-description: "اختيار البروب - يختار نوع البروب المناسب للفحص (linear , convex , phased array). كل بروب مصمم لفحص أعضاء معينة بترددات مختلفة.",
-       buttonLabel: "PROBE",
-        iconPath: "M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM8 20H4v-4h4v4zm0-6H4v-4h4v4zm0-6H4V4h4v4zm6 12h-4v-4h4v4zm0-6h-4v-4h4v4zm0-6h-4V4h4v4zm6 12h-4v-4h4v4zm0-6h-4v-4h4v4zm0-6h-4V4h4v4z",
-        screenEffect: `<rect width="200" height="150" fill="#000"/><text x="50" y="50" fill="#0ff" font-size="14">PROBE: LINEAR</text><text x="50" y="75" fill="#888" font-size="12">Frequency: 7.5MHz</text><text x="50" y="95" fill="#888" font-size="12">Depth: 6cm</text>`
-      },
-      cine: {
-        name: "Cine Loop",
-        description: "حلقة السينما - يعيد تشغيل آخر عدة ثوان من الفحص لمراجعة الحركة. مفيد لدراسة حركة القلب أو الجنين.",
-        buttonLabel: "CINE",
-        iconPath: "M8 5v14l11-7z",
-        screenEffect: `<rect width="200" height="150" fill="#000"/><ellipse cx="100" cy="75" rx="40" ry="25" fill="#2a2a2a" stroke="#888" stroke-width="1"/><polygon points="90,65 90,85 110,75" fill="#0f0"/><rect x="20" y="130" width="160" height="10" fill="#333" stroke="#666" stroke-width="1"/><rect x="20" y="130" width="80" height="10" fill="#0f0"/><text x="10" y="20" fill="#0f0" font-size="12">▶ PLAYBACK</text>`
-      },
-      annotation: {
-        name: "Annotation",
-        description: "زر التعليق - يضيف نصوص وأسهم وعلامات توضيحية على الصورة. يساعد في توثيق النتائج وتوضيح المناطق المهمة.",
-        buttonLabel: "ANNOTATE",
-        iconPath: "M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z",
-        screenEffect: `<rect width="200" height="150" fill="#000"/><ellipse cx="100" cy="75" rx="40" ry="25" fill="#2a2a2a" stroke="#888" stroke-width="1"/><line x1="130" y1="60" x2="150" y2="40" stroke="#ff0" stroke-width="2" marker-end="url(#arrowhead)"/><text x="155" y="40" fill="#ff0" font-size="12">cyst</text><defs><marker id="arrowhead" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto"><polygon points="0 0, 10 5, 0 10" fill="#ff0"/></marker></defs>`
-      },
-      bmode: {
-        name: "B-Mode",
-        description: "وضع B - الوضع الأساسي للتصوير بالموجات فوق الصوتية الذي يعرض صورة ثنائية الأبعاد بالأبيض والأسود. يستخدم لرؤية تشريح الأعضاء والأنسجة.",
-        buttonLabel: "B-MODE",
-        iconPath: "M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14z",
-        interactive: 'toggle',
-        getScreenEffect: (state) => state ?
-          `<rect width="200" height="150" fill="#000"/><ellipse cx="100" cy="75" rx="50" ry="35" fill="#3a3a3a" stroke="#aaa" stroke-width="1"/><ellipse cx="100" cy="75" rx="30" ry="20" fill="#1a1a1a" stroke="#666" stroke-width="1"/><text x="10" y="20" fill="#0f0" font-size="12">B-MODE ON</text>` :
-          `<rect width="200" height="150" fill="#000"/><text x="10" y="20" fill="#666" font-size="12">B-MODE OFF</text>`
-      },
-      mmode: {
-        name: "M-Mode",
-        description: "وضع M - يعرض حركة الأنسجة عبر الزمن على شكل خط واحد. مفيد جداً لقياس حركة صمامات القلب وجدران القلب.",
-        buttonLabel: "M-MODE",
-        iconPath: "M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z",
-        interactive: 'toggle',
-        getScreenEffect: (state) => state ?
-          `<rect width="200" height="150" fill="#000"/><path d="M 20 75 Q 40 50, 60 75 T 100 75 T 140 75 T 180 75" stroke="#0f0" stroke-width="2" fill="none"/><path d="M 20 75 Q 40 100, 60 75 T 100 75 T 140 75 T 180 75" stroke="#0f0" stroke-width="2" fill="none"/><line x1="0" y1="75" x2="200" y2="75" stroke="#666" stroke-width="1"/><text x="10" y="20" fill="#0f0" font-size="12">M-MODE ON</text>` :
-          `<rect width="200" height="150" fill="#000"/><text x="10" y="20" fill="#666" font-size="12">M-MODE OFF</text>`
-      },
-      colorflow: {
-        name: "Color Flow",
-        description: "تدفق الألوان - يعرض تدفق الدم بالألوان فوق صورة B-Mode. الأحمر يشير للتدفق نحو المسبار والأزرق بعيداً عنه.",
-        buttonLabel: "COLOR",
-        iconPath: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-        interactive: 'toggle',
-        getScreenEffect: (state) => state ?
-          `<rect width="200" height="150" fill="#000"/><ellipse cx="100" cy="75" rx="40" ry="25" fill="#2a2a2a" stroke="#888" stroke-width="1"/><ellipse cx="90" cy="70" rx="15" ry="10" fill="#f00" opacity="0.6"/><ellipse cx="110" cy="80" rx="15" ry="10" fill="#00f" opacity="0.6"/><text x="10" y="20" fill="#f0f" font-size="12">COLOR FLOW ON</text>` :
-          `<rect width="200" height="150" fill="#000"/><ellipse cx="100" cy="75" rx="40" ry="25" fill="#2a2a2a" stroke="#888" stroke-width="1"/><text x="10" y="20" fill="#666" font-size="12">COLOR FLOW OFF</text>`
-      },
-      cwdoppler: {
-        name: "CW Doppler",
-        description: "دوبلر الموجة المستمرة - يقيس سرعات التدفق العالية جداً مثل تدفق الدم عبر الصمامات الضيقة. لا يحدد العمق بدقة.",
-        buttonLabel: "CW",
-        iconPath: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z",
-        screenEffect: `<rect width="200" height="150" fill="#000"/><line x1="0" y1="75" x2="200" y2="75" stroke="#666" stroke-width="1"/><path d="M 0 75 L 20 60 L 40 90 L 60 50 L 80 100 L 100 40 L 120 110 L 140 55 L 160 95 L 180 65 L 200 85" stroke="#f00" stroke-width="2" fill="none"/><text x="10" y="20" fill="#f00" font-size="12">CW DOPPLER</text><text x="10" y="140" fill="#0f0" font-size="10">Vmax: 2.8 m/s</text>`
-      },
-      focus: {
-        name: "Focus",
-        description: "زر التركيز - يضبط منطقة التركيز البؤري للحصول على أفضل دقة للصورة. يجب وضع التركيز على المنطقة المراد فحصها.",
-        buttonLabel: "FOCUS",
-        iconPath: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z",
-        interactive: 'slider',
-        sliderLabel: 'عمق التركيز (سم)',
-        sliderMin: 20,
-        sliderMax: 80,
-        getScreenEffect: (value) => {
-          const focusDepth = Math.floor(value * 0.15);
-          const focusY = 30 + (value * 0.8);
-          return `<rect width="200" height="150" fill="#000"/><ellipse cx="100" cy="75" rx="50" ry="35" fill="#2a2a2a" stroke="#666" stroke-width="1"/><ellipse cx="100" cy="${focusY}" rx="35" ry="25" fill="#3a3a3a" stroke="#aaa" stroke-width="2"/><line x1="5" y1="${focusY}" x2="15" y2="${focusY}" stroke="#0ff" stroke-width="2"/><polygon points="15,${focusY-5} 20,${focusY} 15,${focusY+5}" fill="#0ff"/><text x="10" y="20" fill="#0ff" font-size="10">FOCUS: ${focusDepth}cm</text>`;
-        }
-      },
-      frequency: {
-        name: "Frequency",
-        description: "زر التردد - يغير تردد الموجات فوق الصوتية. الترددات العالية تعطي دقة أفضل للأعضاء السطحية والترددات المنخفضة للأعضاء العميقة.",
-        buttonLabel: "FREQ",
-        iconPath: "M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z",
-        interactive: 'slider',
-        sliderLabel: 'التردد (MHz)',
-        sliderMin: 25,
-        sliderMax: 100,
-        getScreenEffect: (value) => {
-          const freq = (value * 0.1).toFixed(1);
-          const resolution = value > 60 ? 'High Resolution' : value > 40 ? 'Medium Resolution' : 'Low Resolution';
-          const ellipseRx = 45 - (value * 0.15);
-          const ellipseRy = 30 - (value * 0.1);
-          return `<rect width="200" height="150" fill="#000"/><ellipse cx="100" cy="75" rx="${ellipseRx}" ry="${ellipseRy}" fill="#3a3a3a" stroke="#aaa" stroke-width="1"/><text x="60" y="50" fill="#0ff" font-size="14">${freq} MHz</text><text x="60" y="100" fill="#888" font-size="10">${resolution}</text>`;
-        }
-      },
-      contrast: {
-        name: "Contrast",
-        description: "زر التباين - يضبط الفرق بين المناطق الفاتحة والداكنة في الصورة. زيادة التباين تجعل الحدود أكثر وضوحاً.",
-        buttonLabel: "CONTRAST",
-        iconPath: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93s3.05-7.44 7-7.93v15.86zm2-15.86c1.03.13 2 .45 2.87.93H13v-.93zM13 7h5.24c.25.31.48.65.68 1H13V7zm0 3h6.74c.08.33.15.66.19 1H13v-1zm0 9.93V19h2.87c-.87.48-1.84.8-2.87.93zM18.24 17H13v-1h5.92c-.2.35-.43.69-.68 1zm1.5-3H13v-1h6.93c-.04.34-.11.67-.19 1z",
-        interactive: 'slider',
-        sliderLabel: 'مستوى التباين',
-        getScreenEffect: (value) => {
-          const leftBright = Math.floor(100 - value);
-          const rightBright = Math.floor(value * 0.2);
-          const level = value > 70 ? 'HIGH' : value > 40 ? 'MEDIUM' : 'LOW';
-          return `<rect width="200" height="150" fill="#000"/><ellipse cx="80" cy="75" rx="30" ry="20" fill="#${leftBright.toString(16).padStart(2,'0')}${leftBright.toString(16).padStart(2,'0')}${leftBright.toString(16).padStart(2,'0')}" stroke="#aaa" stroke-width="1"/><ellipse cx="120" cy="75" rx="30" ry="20" fill="#${rightBright.toString(16).padStart(2,'0')}${rightBright.toString(16).padStart(2,'0')}${rightBright.toString(16).padStart(2,'0')}" stroke="#444" stroke-width="1"/><text x="10" y="20" fill="#0f0" font-size="10">CONTRAST: ${level}</text>`;
-        }
-      },
-      brightness: {
-        name: "Brightness",
-        description: "زر السطوع - يتحكم في السطوع الكلي للصورة المعروضة على الشاشة. يختلف عن Gain الذي يؤثر على الإشارة نفسها.",
-        buttonLabel: "BRIGHT",
-        iconPath: "M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z",
-        interactive: 'slider',
-        sliderLabel: 'مستوى السطوع',
-        getScreenEffect: (value) => {
-          const brightness = Math.floor(value * 1.5);
-          const innerBright = Math.floor(value * 2);
-          return `<rect width="200" height="150" fill="#000"/><ellipse cx="100" cy="75" rx="40" ry="25" fill="#${brightness.toString(16).padStart(2,'0')}${brightness.toString(16).padStart(2,'0')}${brightness.toString(16).padStart(2,'0')}" stroke="#bbb" stroke-width="1"/><circle cx="100" cy="75" r="15" fill="#${innerBright.toString(16).padStart(2,'0')}${innerBright.toString(16).padStart(2,'0')}${innerBright.toString(16).padStart(2,'0')}"/><text x="10" y="20" fill="#ff0" font-size="10">BRIGHTNESS: ${value}%</text>`;
-        }
-      },
-      dynamic: {
-        name: "Dynamic Range",
-        description: "المدى الديناميكي - يتحكم في نطاق درجات الرمادي المعروضة. مدى ديناميكي عالي يعطي صورة ناعمة ومنخفض يعطي تباين أعلى.",
-        buttonLabel: "DR",
-        iconPath: "M10 20h4V4h-4v16zm-6 0h4v-8H4v8zM16 9v11h4V9h-4z",
-        interactive: 'slider',
-        sliderLabel: 'المدى الديناميكي (dB)',
-        sliderMin: 30,
-        sliderMax: 80,
-        getScreenEffect: (value) => {
-          const db = Math.floor(value * 0.8);
-          const bars = Math.floor(value / 15);
-          let barsHTML = '';
-          for (let i = 0; i < 6; i++) {
-            const brightness = i < bars ? Math.floor((i + 1) * 40) : 17;
-            barsHTML += `<rect x="${30 + i * 25}" y="40" width="20" height="70" fill="#${brightness.toString(16).padStart(2,'0')}${brightness.toString(16).padStart(2,'0')}${brightness.toString(16).padStart(2,'0')}"/>`;
-          }
-          return `<rect width="200" height="150" fill="#000"/>${barsHTML}<text x="10" y="20" fill="#0f0" font-size="10">DR: ${db}dB</text>`;
-        }
-      },
-      store: {
-        name: "Store",
-        description: "زر الحفظ - يحفظ الصورة أو الفيديو الحالي في ذاكرة الجهاز. يمكن حفظ صور ثابتة أو مقاطع فيديو قصيرة.",
-        buttonLabel: "STORE",
-        iconPath: "M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z",
-        screenEffect: `<rect width="200" height="150" fill="#000"/><rect x="50" y="30" width="100" height="90" fill="#1a1a1a" stroke="#0f0" stroke-width="2"/><ellipse cx="100" cy="75" rx="30" ry="20" fill="#2a2a2a" stroke="#888" stroke-width="1"/><text x="60" y="135" fill="#0f0" font-size="12">✓ IMAGE SAVED</text>`
-      },
-      review: {
-        name: "Review",
-        description: "زر المراجعة - يفتح الصور والفيديوهات المحفوظة سابقاً للمراجعة. يسمح بمقارنة الفحوصات المختلفة للمريض.",
-        buttonLabel: "REVIEW",
-        iconPath: "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 14H9.5v-2h-2v2H6V9h1.5v2.5h2V9H11v8zm7-2h-1.5v.5h-2V15H16v-2.5h-1.5V12H16v-.5h1.5v-1h-3V15c0 .83.67 1.5 1.5 1.5h2c.83 0 1.5-.67 1.5-1.5v-4c0-.83-.67-1.5-1.5-1.5h-2v1.5h3V15z",
-        screenEffect: `<rect width="200" height="150" fill="#000"/><rect x="20" y="20" width="60" height="50" fill="#1a1a1a" stroke="#666" stroke-width="1"/><rect x="90" y="20" width="60" height="50" fill="#1a1a1a" stroke="#666" stroke-width="1"/><rect x="20" y="80" width="60" height="50" fill="#1a1a1a" stroke="#0f0" stroke-width="2"/><rect x="90" y="80" width="60" height="50" fill="#1a1a1a" stroke="#666" stroke-width="1"/><text x="10" y="145" fill="#0f0" font-size="10">4 IMAGES</text>`
-      },
-      patient: {
-        name: "Patient Info",
-        description: "معلومات المريض - يفتح شاشة إدخال أو عرض معلومات المريض مثل الاسم والعمر ورقم الملف. ضروري لتوثيق الفحص.",
-        buttonLabel: "PATIENT",
-        iconPath: "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z",
-        screenEffect: `<rect width="200" height="150" fill="#000"/><text x="10" y="30" fill="#0ff" font-size="12">Name: Ahmed Ali</text><text x="10" y="50" fill="#0ff" font-size="12">ID: 12345</text><text x="10" y="70" fill="#0ff" font-size="12">Age: 35 years</text><text x="10" y="90" fill="#0ff" font-size="12">Date: 2024-01-15</text>`
-      },
-      report: {
-        name: "Report",
-        description: "زر التقرير - يفتح نظام كتابة التقرير الطبي. يسمح بإدخال النتائج والتشخيص والتوصيات مع الصور.",
-        buttonLabel: "REPORT",
-        iconPath: "M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z",
-        screenEffect: `<rect width="200" height="150" fill="#000"/><rect x="20" y="20" width="160" height="110" fill="#1a1a1a" stroke="#0f0" stroke-width="1"/><line x1="30" y1="35" x2="170" y2="35" stroke="#666" stroke-width="1"/><line x1="30" y1="50" x2="170" y2="50" stroke="#666" stroke-width="1"/><line x1="30" y1="65" x2="170" y2="65" stroke="#666" stroke-width="1"/><text x="30" y="100" fill="#0f0" font-size="10">FINDINGS: Normal</text>`
-      },
-      archive: {
-        name: "Archive",
-        description: "زر الأرشفة - يرسل الصور والتقارير إلى نظام الأرشفة الطبية (PACS). يحفظ البيانات بشكل دائم ويسمح بالوصول من أي مكان.",
-        buttonLabel: "ARCHIVE",
-        iconPath: "M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z",
-        screenEffect: `<rect width="200" height="150" fill="#000"/><rect x="60" y="40" width="80" height="70" fill="#1a1a1a" stroke="#0f0" stroke-width="2"/><polygon points="100,60 90,75 110,75" fill="#0f0"/><line x1="100" y1="75" x2="100" y2="95" stroke="#0f0" stroke-width="3"/><text x="50" y="125" fill="#0f0" font-size="10">SENDING TO PACS...</text>`
-      },
-      export: {
-        name: "Export",
-        description: "زر التصدير - يصدر الصور والفيديوهات إلى وسائط خارجية مثل USB أو CD. يسمح بمشاركة الصور مع أطباء آخرين أو المريض.",
-        buttonLabel: "EXPORT",
-        iconPath: "M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z",
-        screenEffect: `<rect width="200" height="150" fill="#000"/><rect x="70" y="50" width="60" height="50" fill="#1a1a1a" stroke="#0f0" stroke-width="2"/><polygon points="100,65 90,80 110,80" fill="#0f0"/><line x1="100" y1="80" x2="100" y2="95" stroke="#0f0" stroke-width="3"/><text x="60" y="120" fill="#0f0" font-size="10">EXPORT TO USB</text>`
-      }
-    };
 
-    function updateUI() {
-      const baseSize = config.font_size || defaultConfig.font_size;
-      const customFont = config.font_family || defaultConfig.font_family;
-      const baseFontStack = 'Tahoma, Geneva, Verdana, sans-serif';
-      const fontStack = `${customFont}, ${baseFontStack}`;
-      
-      document.body.style.fontFamily = fontStack;
-      document.body.style.background = `linear-gradient(135deg, ${config.primary_color || defaultConfig.primary_color} 0%, ${config.secondary_color || defaultConfig.secondary_color} 100%)`;
-      
-      document.getElementById('page-title').textContent = config.page_title || defaultConfig.page_title;
-      document.getElementById('page-title').style.fontSize = `${baseSize * 3}px`;
-      document.getElementById('page-title').style.fontFamily = fontStack;
-      
-      document.getElementById('subtitle').textContent = config.subtitle || defaultConfig.subtitle;
-      document.getElementById('subtitle').style.fontSize = `${baseSize * 1.25}px`;
-      document.getElementById('subtitle').style.fontFamily = fontStack;
-      
-      const cards = document.querySelectorAll('.control-card');
-      cards.forEach(card => {
-        card.style.background = config.card_background || defaultConfig.card_background;
-        const name = card.querySelector('.control-name');
-        name.style.color = config.text_color || defaultConfig.text_color;
-        name.style.fontSize = `${baseSize * 1.375}px`;
-        name.style.fontFamily = fontStack;
-        
-        const desc = card.querySelector('.control-description');
-        desc.style.fontSize = `${baseSize}px`;
-        desc.style.fontFamily = fontStack;
-      });
-      
-      const iconContainers = document.querySelectorAll('.icon-container');
-      iconContainers.forEach(container => {
-        container.style.background = `linear-gradient(135deg, ${config.primary_color || defaultConfig.primary_color} 0%, ${config.secondary_color || defaultConfig.secondary_color} 100%)`;
-      });
-      
-      const infoPanel = document.getElementById('infoPanel');
-      infoPanel.style.background = config.card_background || defaultConfig.card_background;
-      
-      const infoTitle = document.getElementById('infoTitle');
-      infoTitle.style.color = config.primary_color || defaultConfig.primary_color;
-      infoTitle.style.fontSize = `${baseSize * 1.75}px`;
-      infoTitle.style.fontFamily = fontStack;
-      
-      const infoDesc = document.getElementById('infoDescription');
-      infoDesc.style.fontSize = `${baseSize * 1.125}px`;
-      infoDesc.style.fontFamily = fontStack;
-      
-      const hint = document.querySelector('.click-hint');
-      hint.style.fontSize = `${baseSize}px`;
-      hint.style.fontFamily = fontStack;
-      
-      const demoTitles = document.querySelectorAll('.demo-box h3');
-      demoTitles.forEach(title => {
-        title.style.fontSize = `${baseSize * 1.125}px`;
-        title.style.fontFamily = fontStack;
-      });
-      
-      const buttonLabel = document.getElementById('buttonLabel');
-      if (buttonLabel) {
-        buttonLabel.style.fontSize = `${baseSize * 0.875}px`;
-        buttonLabel.style.fontFamily = fontStack;
-      }
-    }
-
-    const cards = document.querySelectorAll('.control-card');
-    const infoPanel = document.getElementById('infoPanel');
-    const infoTitle = document.getElementById('infoTitle');
-    const infoDescription = document.getElementById('infoDescription');
-    const buttonIcon = document.getElementById('buttonIcon');
-    const buttonLabel = document.getElementById('buttonLabel');
-    const screenEffect = document.getElementById('screenEffect');
-
-    let currentControl = null;
-    const buttonVisual = document.getElementById('buttonVisual');
-    const controlSlider = document.getElementById('controlSlider');
-    const controlRange = document.getElementById('controlRange');
-    const sliderValue = document.getElementById('sliderValue');
-    const sliderLabel = document.getElementById('sliderLabel');
-
-    function updateScreenEffect(controlId) {
-      const controlData = controlsData[controlId];
-      let effect = '';
-      
-      if (controlData.interactive === 'toggle') {
-        effect = controlData.getScreenEffect(buttonStates[controlId]);
-      } else if (controlData.interactive === 'slider') {
-        effect = controlData.getScreenEffect(buttonStates[controlId]);
-      } else if (controlData.screenEffect) {
-        effect = controlData.screenEffect;
-      }
-      
-      screenEffect.innerHTML = `<svg viewBox="0 0 200 150" class="screen-effect">${effect}</svg>`;
-    }
-
-    buttonVisual.addEventListener('click', function() {
-      if (!currentControl) return;
-      
-      const controlData = controlsData[currentControl];
-      
-      if (controlData.interactive === 'toggle') {
-        buttonStates[currentControl] = !buttonStates[currentControl];
-        
-        if (buttonStates[currentControl]) {
-          buttonVisual.classList.add('active');
-        } else {
-          buttonVisual.classList.remove('active');
+        body {
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at 30% 20%, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
+            padding: 16px;
+            -webkit-tap-highlight-color: transparent;
         }
-        
-        updateScreenEffect(currentControl);
-      }
-    });
 
-    controlRange.addEventListener('input', function() {
-      if (!currentControl) return;
-      
-      const value = parseInt(this.value);
-      buttonStates[currentControl] = value;
-      sliderValue.textContent = value;
-      
-      updateScreenEffect(currentControl);
-    });
-
-    cards.forEach(card => {
-      card.addEventListener('click', function() {
-        const controlId = this.getAttribute('data-control');
-        const controlData = controlsData[controlId];
-        
-        if (!controlData) return;
-        
-        currentControl = controlId;
-        
-        cards.forEach(c => {
-          c.classList.remove('active');
-          c.querySelector('.control-description').classList.remove('show');
-        });
-        
-        this.classList.add('active');
-        this.querySelector('.control-description').classList.add('show');
-        
-        infoTitle.textContent = controlData.name;
-        infoDescription.textContent = controlData.description;
-        
-        buttonIcon.innerHTML = `<path d="${controlData.iconPath}"/>`;
-        buttonLabel.textContent = controlData.buttonLabel;
-        
-        if (controlData.interactive === 'toggle') {
-          controlSlider.classList.remove('show');
-          buttonVisual.style.cursor = 'pointer';
-          
-          if (buttonStates[controlId]) {
-            buttonVisual.classList.add('active');
-          } else {
-            buttonVisual.classList.remove('active');
-          }
-        } else if (controlData.interactive === 'slider') {
-          controlSlider.classList.add('show');
-          buttonVisual.style.cursor = 'default';
-          buttonVisual.classList.remove('active');
-          
-          sliderLabel.textContent = controlData.sliderLabel || 'التحكم';
-          controlRange.min = controlData.sliderMin || 0;
-          controlRange.max = controlData.sliderMax || 100;
-          controlRange.value = buttonStates[controlId];
-          sliderValue.textContent = buttonStates[controlId];
-        } else {
-          controlSlider.classList.remove('show');
-          buttonVisual.style.cursor = 'default';
-          buttonVisual.classList.remove('active');
+        .shape {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.1;
+            animation: floatShape 25s infinite ease-in-out;
+            pointer-events: none;
         }
-        
-        updateScreenEffect(controlId);
-        
-        infoPanel.classList.add('show');
-        
-        infoPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      });
-    });
+        .shape:nth-child(1) {
+            width: 50vmin;
+            height: 50vmin;
+            background: #e94560;
+            top: -15%;
+            left: -15%;
+        }
+        .shape:nth-child(2) {
+            width: 45vmin;
+            height: 45vmin;
+            background: #533483;
+            bottom: -15%;
+            right: -15%;
+            animation-delay: -7s;
+        }
+        .shape:nth-child(3) {
+            width: 35vmin;
+            height: 35vmin;
+            background: #0f3460;
+            top: 50%;
+            left: 65%;
+            animation-delay: -12s;
+        }
 
-    async function onConfigChange(newConfig) {
-      Object.assign(config, newConfig);
-      updateUI();
-    }
+        @keyframes floatShape {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(5vw, -8vh) scale(1.08); }
+            66% { transform: translate(-3vw, 6vh) scale(0.92); }
+        }
 
-    if (window.elementSdk) {
-      window.elementSdk.init({
-        defaultConfig,
-        onConfigChange,
-        mapToCapabilities: (config) => ({
-          recolorables: [
-            {
-              get: () => config.primary_color || defaultConfig.primary_color,
-              set: (value) => {
-                config.primary_color = value;
-                window.elementSdk.setConfig({ primary_color: value });
-              }
-            },
-            {
-              get: () => config.secondary_color || defaultConfig.secondary_color,
-              set: (value) => {
-                config.secondary_color = value;
-                window.elementSdk.setConfig({ secondary_color: value });
-              }
-            },
-            {
-              get: () => config.card_background || defaultConfig.card_background,
-              set: (value) => {
-                config.card_background = value;
-                window.elementSdk.setConfig({ card_background: value });
-              }
-            },
-            {
-              get: () => config.text_color || defaultConfig.text_color,
-              set: (value) => {
-                config.text_color = value;
-                window.elementSdk.setConfig({ text_color: value });
-              }
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-radius: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6), inset 0 0 25px rgba(255,255,255,0.05);
+            width: 100%;
+            max-width: 500px;
+            padding: 32px 24px;
+            z-index: 10;
+            animation: cardEntry 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+            margin: auto;
+        }
+
+        @keyframes cardEntry {
+            from { opacity: 0; transform: translateY(40px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .icon-circle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e94560, #533483);
+            box-shadow: 0 12px 28px rgba(233, 69, 96, 0.45);
+            font-size: 38px;
+            margin-bottom: 14px;
+            animation: pulse 2.8s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(233, 69, 96, 0.55); }
+            70% { box-shadow: 0 0 0 20px rgba(233, 69, 96, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(233, 69, 96, 0); }
+        }
+
+        .header h1 {
+            font-size: clamp(26px, 8vw, 34px);
+            color: #ffffff;
+            font-weight: 800;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            margin-top: 8px;
+            line-height: 1.3;
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.8);
+            font-size: clamp(14px, 4.5vw, 17px);
+            margin-top: 6px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #fff;
+            font-size: clamp(15px, 5vw, 17px);
+        }
+
+        .required {
+            color: #e94560;
+            margin-right: 4px;
+            font-size: 1.2em;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 15px 18px;
+            background: rgba(255, 255, 255, 0.09);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 16px;
+            font-size: 16px;
+            color: #fff;
+            outline: none;
+            direction: rtl;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            -webkit-appearance: none;
+            appearance: none;
+            line-height: 1.4;
+        }
+
+        input::placeholder {
+            color: rgba(255,255,255,0.45);
+            font-size: 15px;
+        }
+
+        input:focus, select:focus {
+            border-color: #e94560;
+            background: rgba(255, 255, 255, 0.18);
+            box-shadow: 0 0 22px rgba(233, 69, 96, 0.4);
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: left 14px center;
+            background-size: 18px;
+            cursor: pointer;
+            padding-left: 35px;
+        }
+
+        select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 17px 20px;
+            background: linear-gradient(135deg, #e94560, #533483);
+            border: none;
+            border-radius: 18px;
+            color: white;
+            font-size: clamp(18px, 6vw, 21px);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            margin-top: 12px;
+            box-shadow: 0 14px 30px rgba(233, 69, 96, 0.4);
+            letter-spacing: 0.4px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            transform: none;
+            box-shadow: 0 6px 16px rgba(233, 69, 96, 0.25);
+        }
+
+        .btn .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.7s linear infinite;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: #1e1e2f;
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 28px;
+            max-width: 380px;
+            width: 100%;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            transform: scale(0.8);
+            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: scale(1);
+        }
+
+        .modal-icon {
+            font-size: 58px;
+            margin-bottom: 12px;
+        }
+
+        .modal-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .modal-text {
+            font-size: 17px;
+            color: rgba(255,255,255,0.85);
+            margin-bottom: 24px;
+            line-height: 1.6;
+            padding: 0 8px;
+        }
+
+        .modal-btn {
+            background: linear-gradient(135deg, #e94560, #533483);
+            border: none;
+            color: white;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            min-width: 120px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .modal-btn:active {
+            transform: scale(0.95);
+        }
+
+        @media (max-width: 400px) {
+            .card {
+                padding: 28px 18px;
             }
-          ],
-          borderables: [],
-          fontEditable: {
-            get: () => config.font_family || defaultConfig.font_family,
-            set: (value) => {
-              config.font_family = value;
-              window.elementSdk.setConfig({ font_family: value });
+            input, select {
+                padding: 14px 16px;
+                font-size: 15px;
             }
-          },
-          fontSizeable: {
-            get: () => config.font_size || defaultConfig.font_size,
-            set: (value) => {
-              config.font_size = value;
-              window.elementSdk.setConfig({ font_size: value });
+            .btn {
+                padding: 15px;
             }
-          }
-        }),
-        mapToEditPanelValues: (config) => new Map([
-          ["page_title", config.page_title || defaultConfig.page_title],
-          ["subtitle", config.subtitle || defaultConfig.subtitle]
-        ])
-      });
-    }
+        }
 
-    updateUI();
-  </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99ce904bc788d0f3',t:'MTc2Mjg3MjIyNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+        @supports (padding: max(0px)) {
+            body {
+                padding-left: max(16px, env(safe-area-inset-left));
+                padding-right: max(16px, env(safe-area-inset-right));
+                padding-bottom: max(16px, env(safe-area-inset-bottom));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+
+    <div class="card">
+        <div class="header">
+            <div class="icon-circle">📋</div>
+            <h1>استمارة التقديم</h1>
+            <p>أدخل بياناتك وسيتم إرسالها للبوت</p>
+        </div>
+
+        <form id="requestForm" novalidate>
+            <div class="form-group">
+                <label><span class="required">*</span> الاسم الثلاثي</label>
+                <input type="text" id="fullName" placeholder="الاسم الكامل" required autocomplete="name">
+            </div>
+            <div class="form-group">
+                <label><span class="required">*</span> رقم الهاتف</label>
+                <input type="tel" id="phone" placeholder="مثال: 07701234567" required pattern="[0-9+]{7,15}" autocomplete="tel">
+            </div>
+            <div class="form-group">
+                <label><span class="required">*</span> حساب الانستغرام</label>
+                <input type="text" id="instagram" placeholder="اسم المستخدم بدون @" required autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label><span class="required">*</span> العنوان</label>
+                <input type="text" id="address" placeholder="المحافظة / المنطقة" required autocomplete="street-address">
+            </div>
+            <div class="form-group">
+                <label><span class="required">*</span> الحالة الدراسية</label>
+                <select id="studyStatus" required>
+                    <option value="" disabled selected>اختر الحالة الدراسية</option>
+                    <option value="طالب">طالب</option>
+                    <option value="خريج">خريج</option>
+                    <option value="موظف">موظف</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label><span class="required">*</span> الحالة الاجتماعية</label>
+                <select id="maritalStatus" required>
+                    <option value="" disabled selected>اختر الحالة الاجتماعية</option>
+                    <option value="اعزب">اعزب</option>
+                    <option value="متزوج">متزوج</option>
+                </select>
+            </div>
+            <button type="submit" class="btn" id="submitBtn">إرسال الطلب</button>
+        </form>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-box">
+            <div class="modal-icon" id="modalIcon">⚠️</div>
+            <div class="modal-title" id="modalTitle">تنبيه</div>
+            <div class="modal-text" id="modalMessage">يرجى تشغيل الصفحة من خلال خادم محلي أو استضافة.</div>
+            <button class="modal-btn" id="closeModalBtn">حسناً</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // التوكن الجديد الذي طلبته
+            const BOT_TOKEN = '8946526389:AAFmpsOgtGGv3nYqYcN1k8Ve0T59RXkhM9E';
+            const CHAT_ID = '639100062';
+            const API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+
+            const form = document.getElementById('requestForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const modalOverlay = document.getElementById('modalOverlay');
+            const modalIcon = document.getElementById('modalIcon');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+
+            // تحذير إذا تم فتح الصفحة مباشرة من ملف (بدون خادم)
+            if (window.location.protocol === 'file:') {
+                showModal('⚠️', 'تنبيه هام', 'الصفحة مفتوحة من ملف مباشر. يجب تشغيلها عبر Live Server أو استضافة لتعمل خاصية الإرسال.');
+            }
+
+            function showModal(icon, title, message) {
+                modalIcon.textContent = icon;
+                modalTitle.textContent = title;
+                modalMessage.textContent = message;
+                modalOverlay.classList.add('active');
+            }
+
+            function closeModal() {
+                modalOverlay.classList.remove('active');
+            }
+
+            closeModalBtn.addEventListener('click', closeModal);
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) closeModal();
+            });
+
+            function escapeHtml(text) {
+                return String(text)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+            }
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+
+                const fullName = document.getElementById('fullName').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const instagram = document.getElementById('instagram').value.trim();
+                const address = document.getElementById('address').value.trim();
+                const studyStatus = document.getElementById('studyStatus').value;
+                const maritalStatus = document.getElementById('maritalStatus').value;
+
+                submitBtn.disabled = true;
+                const originalHTML = submitBtn.innerHTML;
+                submitBtn.innerHTML = `جارٍ الإرسال <span class="loader"></span>`;
+
+                const message = 
+                    `🔔 <b>طلب جديد</b>\n\n` +
+                    `👤 <b>الاسم:</b> ${escapeHtml(fullName)}\n` +
+                    `📞 <b>الهاتف:</b> ${escapeHtml(phone)}\n` +
+                    `📸 <b>انستغرام:</b> @${escapeHtml(instagram)}\n` +
+                    `📍 <b>العنوان:</b> ${escapeHtml(address)}\n` +
+                    `🎓 <b>الدراسة:</b> ${escapeHtml(studyStatus)}\n` +
+                    `💍 <b>الاجتماعية:</b> ${escapeHtml(maritalStatus)}`;
+
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: CHAT_ID,
+                            text: message,
+                            parse_mode: 'HTML'
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.ok) {
+                        showModal('✅', 'تم الإرسال بنجاح', 'تم إرسال بياناتك  بنجاح وسيتم التواصل معك قريباً.');
+                        form.reset();
+                        document.getElementById('studyStatus').selectedIndex = 0;
+                        document.getElementById('maritalStatus').selectedIndex = 0;
+                    } else {
+                        console.error('Telegram API error:', result);
+                        showModal('❌', 'فشل الإرسال', `السبب: ${result.description || 'خطأ غير معروف'}`);
+                    }
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    let errorMsg = 'تأكد من تشغيل الصفحة على خادم محلي (Live Server) أو استضافة، وليس من ملف مباشر.';
+                    if (window.location.protocol !== 'file:') {
+                        errorMsg = 'تعذر الاتصال بالخادم، تأكد من اتصالك بالإنترنت أو حاول لاحقاً.';
+                    }
+                    showModal('❌', 'خطأ في الاتصال', errorMsg);
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalHTML;
+                }
+            });
+        })();
+    </script>
+</body>
 </html>
