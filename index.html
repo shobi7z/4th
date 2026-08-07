@@ -15,7 +15,7 @@
     }
   </script>
   <style>
-    /* ===== تصميم فاخر (ذهبي × أسود × أبيض) ===== */
+    /* ===== التصميم الفاخر (نفسه) ===== */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Tajawal', sans-serif;
@@ -472,7 +472,7 @@
 
 <script type="module">
   import { initializeApp } from "firebase/app";
-  import { getDatabase, ref, set, push, get, query, orderByChild, equalTo, update } from "firebase/database";
+  import { getDatabase, ref, set, push, get, update } from "firebase/database";
 
   const firebaseConfig = {
     apiKey: "AIzaSyA-vIzeLRmYbB1-81aggpnbHL7CUSe6Y_Y",
@@ -571,6 +571,7 @@
   let timeLeft = 15;
   let isAnswering = false;
   let quizFinished = false;
+  let isBlocked = false;  // منع إعادة المحاولة بعد المنع
 
   // ======== عناصر DOM ========
   const registerDiv = document.getElementById('registerForm');
@@ -609,17 +610,30 @@
     }
   });
 
-  function showError(msg) { errorBox.style.display = 'flex'; errorText.textContent = msg; }
-  function hideError() { errorBox.style.display = 'none'; }
+  function showError(msg) {
+    errorBox.style.display = 'flex';
+    errorText.textContent = msg;
+  }
+  function hideError() {
+    errorBox.style.display = 'none';
+  }
 
-  // ===== التحقق من وجود المستخدم (بحساسية تجاه حالة الأحرف) =====
+  // ===== التحقق من وجود المستخدم (طريقة يدوية 100% موثوقة) =====
   async function isUserExists(instagram) {
     try {
       const instagramLower = instagram.toLowerCase().trim();
       const usersRef = ref(db, 'users');
-      const instaQuery = query(usersRef, orderByChild('instagram'), equalTo(instagramLower));
-      const snapshot = await get(instaQuery);
-      return snapshot.exists();
+      const snapshot = await get(usersRef);
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        // البحث يدوياً عن أي مستخدم لديه نفس الإنستغرام
+        for (const key in data) {
+          if (data[key].instagram && data[key].instagram.toLowerCase() === instagramLower) {
+            return true;
+          }
+        }
+      }
+      return false;
     } catch (e) {
       console.error('Error checking user existence:', e);
       return false;
@@ -628,10 +642,12 @@
 
   // ===== بدء الاختبار =====
   startBtn.addEventListener('click', async () => {
+    // إذا كان محظوراً مسبقاً، لا نفعل شيئاً
+    if (isBlocked) return;
+
     const name = fullNameInput.value.trim();
     let instagram = instagramInput.value.trim().replace(/^@/, '').toLowerCase();
 
-    // التحقق من صحة الإدخال
     if (!name || !instagram) {
       showError('Please enter full name and Instagram handle.');
       return;
@@ -642,13 +658,18 @@
     startBtn.disabled = true;
     startBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Checking...';
 
-    // التحقق من وجود الحساب في قاعدة البيانات
+    // التحقق من وجود الحساب
     const exists = await isUserExists(instagram);
 
     if (exists) {
       showError('⚠️ This Instagram account is already registered. You cannot retake the quiz.');
       startBtn.disabled = false;
       startBtn.innerHTML = '<i class="fas fa-play"></i> Start Quiz';
+      // منع أي محاولة مستقبلية
+      isBlocked = true;
+      startBtn.disabled = true;
+      startBtn.style.opacity = '0.5';
+      startBtn.style.cursor = 'not-allowed';
       return;
     }
 
@@ -658,7 +679,7 @@
       currentUserKey = newUserRef.key;
       await set(newUserRef, {
         name: name,
-        instagram: instagram,   // مخزنة بصيغة صغيرة
+        instagram: instagram,
         startTime: Date.now(),
         correctAnswers: 0,
         earnings: 0,
@@ -666,7 +687,7 @@
       });
     } catch (e) {
       console.error('Error creating user:', e);
-      showError('حدث خطأ في الاتصال بقاعدة البيانات. حاول مرة أخرى.');
+      showError('Database error. Please try again.');
       startBtn.disabled = false;
       startBtn.innerHTML = '<i class="fas fa-play"></i> Start Quiz';
       return;
@@ -684,7 +705,7 @@
     showQuestion();
   });
 
-  // ===== عرض السؤال =====
+  // ===== بقية الدوال (showQuestion, handleAnswer, ...) =====
   function showQuestion() {
     if (currentQuestionIndex >= questions.length || quizFinished) {
       finishQuiz();
@@ -791,7 +812,7 @@
     certDiv.style.display = 'none';
   }
 
-  console.log('✅ تم تحميل الكود مع منع التكرار النهائي.');
+  console.log('✅ تم تحميل الكود مع حل نهائي للمنع (بحث يدوي).');
 </script>
 </body>
 </html>
