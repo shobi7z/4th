@@ -1,535 +1,797 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>استمارة التقديم</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Cairo', sans-serif;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Radiology & Ultrasound Quiz</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
+        "firebase/database": "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"
+      }
+    }
+  </script>
+  <style>
+    /* ===== تصميم فاخر (ذهبي × أسود × أبيض) ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background: #f4f1ea;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      background-image: radial-gradient(circle at 20% 30%, rgba(212,175,55,0.06) 0%, transparent 60%),
+                        radial-gradient(circle at 80% 70%, rgba(0,0,0,0.03) 0%, transparent 50%);
+    }
+    .container {
+      max-width: 560px;
+      width: 100%;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 48px 48px 32px 32px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.08), 0 10px 30px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.6);
+      padding: 32px 28px 20px;
+      border: 1px solid rgba(255,255,255,0.5);
+      position: relative;
+    }
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #d4af37, #f5d76e, #b8860b);
+      border-radius: 48px 48px 0 0;
+      z-index: 5;
+    }
+    .brand-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+    .brand-header i { font-size: 34px; color: #d4af37; filter: drop-shadow(0 2px 4px rgba(212,175,55,0.3)); }
+    h1 { font-size: 28px; font-weight: 900; color: #1a1a1a; letter-spacing: -0.5px; }
+    h1 span { color: #d4af37; }
+    .subtitle-badge {
+      display: inline-block;
+      background: #1a1a1a;
+      color: #f5d76e;
+      padding: 8px 22px;
+      border-radius: 60px;
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 28px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border: 1px solid rgba(212,175,55,0.2);
+    }
+    .subtitle-badge i { margin-left: 8px; color: #f5d76e; }
+    .form-group { margin-bottom: 18px; text-align: right; }
+    label { display: block; font-weight: 700; font-size: 14px; margin-bottom: 6px; color: #1a1a1a; }
+    label i { color: #d4af37; margin-left: 8px; width: 18px; }
+    .input-wrapper input {
+      width: 100%;
+      padding: 15px 18px;
+      background: #fcfaf7;
+      border: 2px solid #e8e2d7;
+      border-radius: 20px;
+      font-size: 16px;
+      font-family: 'Tajawal', sans-serif;
+      font-weight: 500;
+      transition: 0.3s ease;
+      color: #1a1a1a;
+      outline: none;
+    }
+    .input-wrapper input:focus {
+      border-color: #d4af37;
+      background: #ffffff;
+      box-shadow: 0 0 0 6px rgba(212,175,55,0.12);
+    }
+    .input-wrapper input::placeholder { color: #b5aa9a; font-weight: 400; }
+    .btn-gold {
+      background: linear-gradient(145deg, #d4af37, #b8860b);
+      color: #ffffff;
+      border: none;
+      padding: 18px 24px;
+      border-radius: 60px;
+      font-size: 20px;
+      font-weight: 800;
+      font-family: 'Tajawal', sans-serif;
+      cursor: pointer;
+      transition: 0.3s ease;
+      width: 100%;
+      margin-top: 12px;
+      box-shadow: 0 10px 28px rgba(184,134,11,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+    .btn-gold:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 16px 36px rgba(184,134,11,0.45); }
+    .btn-gold:active:not(:disabled) { transform: scale(0.96); }
+    .btn-gold:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .error-box {
+      background: #fef0ed;
+      color: #a13026;
+      padding: 14px 18px;
+      border-radius: 18px;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 18px;
+      border-right: 5px solid #c0392b;
+      display: none;
+      align-items: center;
+      gap: 12px;
+    }
+    .error-box i { font-size: 20px; color: #c0392b; }
+    .quiz-area { display: none; animation: fadeSlideUp 0.5s cubic-bezier(0.23,1,0.32,1); }
+    @keyframes fadeSlideUp { 0% { opacity:0; transform:translateY(20px); } 100% { opacity:1; transform:translateY(0); } }
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fcfaf7;
+      padding: 12px 20px;
+      border-radius: 60px;
+      margin-bottom: 24px;
+      border: 1px solid #ece6dd;
+    }
+    .q-counter { font-weight: 700; font-size: 16px; color: #1a1a1a; }
+    .q-counter span { background: #1a1a1a; color: #f5d76e; padding: 2px 14px; border-radius: 40px; margin: 0 4px; font-weight: 800; }
+    .timer-premium {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #1a1a1a;
+      padding: 4px 16px 4px 20px;
+      border-radius: 60px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .timer-premium i { color: #f5d76e; font-size: 18px; }
+    .timer-premium .time-num { color: #f5d76e; font-size: 26px; font-weight: 900; font-variant-numeric: tabular-nums; min-width: 32px; text-align: center; line-height: 1; }
+    .question-card {
+      background: #fcfaf7;
+      padding: 22px 20px;
+      border-radius: 28px;
+      border: 1px solid #ece6dd;
+      margin-bottom: 12px;
+      min-height: 80px;
+      display: block;
+    }
+    .question-card .q-text {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a1a1a;
+      line-height: 1.7;
+      direction: ltr;
+      text-align: left;
+    }
+    .translation-area {
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: #fef9e7;
+      border-radius: 16px;
+      border: 1px solid #f9e79f;
+      display: none;
+      font-size: 18px;
+      color: #1a1a1a;
+      text-align: right;
+      line-height: 1.7;
+      direction: rtl;
+    }
+    .translation-area.visible { display: block; }
+    .btn-translate {
+      background: transparent;
+      border: none;
+      color: #b8860b;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 30px;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .btn-translate:hover { background: #fef9e7; }
+    .btn-translate i { font-size: 16px; }
 
-        body {
-            min-height: 100vh;
-            min-height: -webkit-fill-available;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: radial-gradient(circle at 30% 20%, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            position: relative;
-            overflow-x: hidden;
-            overflow-y: auto;
-            padding: 16px;
-            -webkit-tap-highlight-color: transparent;
-        }
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .option-btn {
+      background: #ffffff;
+      border: 2px solid #e8e2d7;
+      border-radius: 24px;
+      padding: 16px 12px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: 'Tajawal', sans-serif;
+      cursor: pointer;
+      transition: 0.25s ease;
+      text-align: center;
+      color: #1a1a1a;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      direction: ltr;
+    }
+    .option-btn:hover:not(:disabled) { border-color: #d4af37; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(212,175,55,0.15); background: #fefcf7; }
+    .option-btn:active:not(:disabled) { transform: scale(0.96); }
+    .option-btn.selected-correct { background: #27ae60; color: white; border-color: #1e8449; box-shadow: 0 6px 16px rgba(39,174,96,0.3); transform: scale(1.02); }
+    .option-btn.selected-wrong { background: #e74c3c; color: white; border-color: #c0392b; box-shadow: 0 6px 16px rgba(231,76,60,0.3); }
+    .option-btn:disabled { cursor: not-allowed; opacity: 0.7; transform: none !important; }
 
-        .shape {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(60px);
-            opacity: 0.1;
-            animation: floatShape 25s infinite ease-in-out;
-            pointer-events: none;
-        }
-        .shape:nth-child(1) {
-            width: 50vmin;
-            height: 50vmin;
-            background: #e94560;
-            top: -15%;
-            left: -15%;
-        }
-        .shape:nth-child(2) {
-            width: 45vmin;
-            height: 45vmin;
-            background: #533483;
-            bottom: -15%;
-            right: -15%;
-            animation-delay: -7s;
-        }
-        .shape:nth-child(3) {
-            width: 35vmin;
-            height: 35vmin;
-            background: #0f3460;
-            top: 50%;
-            left: 65%;
-            animation-delay: -12s;
-        }
+    .progress-bar-wrapper {
+      background: #fcfaf7;
+      border-radius: 60px;
+      padding: 12px 20px;
+      border: 1px solid #ece6dd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .progress-bar-wrapper .stat { font-weight: 700; font-size: 16px; color: #1a1a1a; }
+    .progress-bar-wrapper .stat i { color: #d4af37; margin-left: 6px; }
+    .progress-bar-wrapper .stat .num-gold { color: #b8860b; font-weight: 900; font-size: 18px; }
 
-        @keyframes floatShape {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(5vw, -8vh) scale(1.08); }
-            66% { transform: translate(-3vw, 6vh) scale(0.92); }
-        }
+    .certificate-premium {
+      display: none;
+      background: #fefcf8;
+      padding: 36px 24px 30px;
+      border-radius: 48px;
+      border: 3px solid #d4af37;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.06), inset 0 0 0 6px rgba(212,175,55,0.08);
+      margin-top: 20px;
+      animation: fadeSlideUp 0.7s ease;
+      position: relative;
+    }
+    .certificate-premium::before {
+      content: '✦';
+      position: absolute;
+      top: -22px;
+      right: 50%;
+      transform: translateX(50%);
+      font-size: 44px;
+      color: #d4af37;
+      background: #fefcf8;
+      padding: 0 16px;
+      text-shadow: 0 2px 8px rgba(212,175,55,0.3);
+    }
+    .certificate-premium .cert-title { font-size: 32px; font-weight: 900; color: #1a1a1a; margin-bottom: 4px; }
+    .certificate-premium .cert-title i { color: #d4af37; margin-left: 8px; }
+    .certificate-premium .cert-sub { color: #5a4f42; font-size: 16px; font-weight: 500; margin-bottom: 12px; }
+    .certificate-premium .cert-name {
+      font-size: 38px;
+      font-weight: 900;
+      color: #1a1a1a;
+      background: linear-gradient(145deg, #fcfaf7, #f4f1ea);
+      display: inline-block;
+      padding: 8px 44px;
+      border-radius: 80px;
+      margin: 12px 0 10px;
+      border: 2px dashed #d4af37;
+      letter-spacing: 1px;
+    }
+    .certificate-premium .cert-detail { font-size: 18px; color: #2a2a2a; line-height: 1.9; font-weight: 500; }
+    .certificate-premium .cert-detail strong { color: #b8860b; font-weight: 900; }
+    .certificate-premium .stamp {
+      display: inline-block;
+      background: linear-gradient(145deg, #d4af37, #b8860b);
+      color: white;
+      padding: 8px 32px;
+      border-radius: 60px;
+      font-weight: 800;
+      font-size: 18px;
+      margin-top: 14px;
+      box-shadow: 0 6px 18px rgba(184,134,11,0.25);
+    }
+    .certificate-premium .cert-footer { margin-top: 26px; border-top: 2px solid #ece6dd; padding-top: 16px; color: #6a5f52; font-size: 14px; font-weight: 500; }
+    .certificate-premium .cert-footer i { color: #d4af37; }
 
-        .card {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border-radius: 32px;
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.6), inset 0 0 25px rgba(255,255,255,0.05);
-            width: 100%;
-            max-width: 500px;
-            padding: 32px 24px;
-            z-index: 10;
-            animation: cardEntry 0.7s cubic-bezier(0.23, 1, 0.32, 1);
-            margin: auto;
-        }
+    .fail-premium {
+      display: none;
+      padding: 32px 20px;
+      background: #fdf6f3;
+      border-radius: 32px;
+      border: 2px solid #f5cba7;
+      margin-top: 20px;
+      animation: fadeSlideUp 0.5s ease;
+    }
+    .fail-premium h2 { color: #a04028; font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+    .fail-premium h2 i { color: #a04028; margin-left: 10px; }
+    .fail-premium p { font-size: 18px; color: #2a2a2a; font-weight: 500; }
+    .fail-premium .fail-amount { color: #b8860b; font-weight: 900; font-size: 24px; }
 
-        @keyframes cardEntry {
-            from { opacity: 0; transform: translateY(40px) scale(0.96); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
+    .footer-premium {
+      margin-top: 40px;
+      padding-top: 22px;
+      border-top: 2px solid rgba(212,175,55,0.2);
+      text-align: center;
+      color: #2a2a2a;
+      font-size: 14px;
+    }
+    .footer-premium .credit { font-weight: 700; font-size: 15px; margin-bottom: 10px; }
+    .footer-premium .credit strong {
+      background: linear-gradient(145deg, #d4af37, #b8860b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .footer-premium .social-wrap {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 10px 0 6px;
+    }
+    .footer-premium .social-wrap a {
+      color: #1a1a1a;
+      background: #fcfaf7;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 8px 22px;
+      border-radius: 60px;
+      border: 1px solid #e8e2d7;
+      transition: 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+    }
+    .footer-premium .social-wrap a:hover { background: #ffffff; border-color: #d4af37; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(212,175,55,0.12); }
+    .footer-premium .social-wrap a i { color: #d4af37; font-size: 18px; }
+    .footer-premium .coop { margin-top: 14px; font-weight: 500; color: #3a3a3a; }
+    .footer-premium .coop strong { color: #1a1a1a; background: #fcfaf7; padding: 2px 14px; border-radius: 30px; border: 1px solid #e8e2d7; font-weight: 800; }
 
-        .header {
-            text-align: center;
-            margin-bottom: 28px;
-        }
-
-        .icon-circle {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #e94560, #533483);
-            box-shadow: 0 12px 28px rgba(233, 69, 96, 0.45);
-            font-size: 38px;
-            margin-bottom: 14px;
-            animation: pulse 2.8s infinite;
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(233, 69, 96, 0.55); }
-            70% { box-shadow: 0 0 0 20px rgba(233, 69, 96, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(233, 69, 96, 0); }
-        }
-
-        .header h1 {
-            font-size: clamp(26px, 8vw, 34px);
-            color: #ffffff;
-            font-weight: 800;
-            text-shadow: 0 4px 12px rgba(0,0,0,0.4);
-            margin-top: 8px;
-            line-height: 1.3;
-        }
-
-        .header p {
-            color: rgba(255,255,255,0.8);
-            font-size: clamp(14px, 4.5vw, 17px);
-            margin-top: 6px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #fff;
-            font-size: clamp(15px, 5vw, 17px);
-        }
-
-        .required {
-            color: #e94560;
-            margin-right: 4px;
-            font-size: 1.2em;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 15px 18px;
-            background: rgba(255, 255, 255, 0.09);
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            border-radius: 16px;
-            font-size: 16px;
-            color: #fff;
-            outline: none;
-            direction: rtl;
-            transition: all 0.25s ease;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-            -webkit-appearance: none;
-            appearance: none;
-            line-height: 1.4;
-        }
-
-        input::placeholder {
-            color: rgba(255,255,255,0.45);
-            font-size: 15px;
-        }
-
-        input:focus, select:focus {
-            border-color: #e94560;
-            background: rgba(255, 255, 255, 0.18);
-            box-shadow: 0 0 22px rgba(233, 69, 96, 0.4);
-        }
-
-        select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: left 14px center;
-            background-size: 18px;
-            cursor: pointer;
-            padding-left: 35px;
-        }
-
-        select option {
-            background: #1a1a2e;
-            color: #fff;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 17px 20px;
-            background: linear-gradient(135deg, #e94560, #533483);
-            border: none;
-            border-radius: 18px;
-            color: white;
-            font-size: clamp(18px, 6vw, 21px);
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            margin-top: 12px;
-            box-shadow: 0 14px 30px rgba(233, 69, 96, 0.4);
-            letter-spacing: 0.4px;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .btn:active {
-            transform: scale(0.97);
-        }
-
-        .btn:disabled {
-            opacity: 0.7;
-            transform: none;
-            box-shadow: 0 6px 16px rgba(233, 69, 96, 0.25);
-        }
-
-        .btn .loader {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 0.7s linear infinite;
-            margin-left: 8px;
-            vertical-align: middle;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            padding: 20px;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .modal-box {
-            background: #1e1e2f;
-            border: 1px solid rgba(255,255,255,0.18);
-            border-radius: 28px;
-            max-width: 380px;
-            width: 100%;
-            padding: 30px 20px;
-            text-align: center;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-            transform: scale(0.8);
-            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .modal-overlay.active .modal-box {
-            transform: scale(1);
-        }
-
-        .modal-icon {
-            font-size: 58px;
-            margin-bottom: 12px;
-        }
-
-        .modal-title {
-            font-size: 26px;
-            font-weight: 800;
-            color: #fff;
-            margin-bottom: 8px;
-        }
-
-        .modal-text {
-            font-size: 17px;
-            color: rgba(255,255,255,0.85);
-            margin-bottom: 24px;
-            line-height: 1.6;
-            padding: 0 8px;
-        }
-
-        .modal-btn {
-            background: linear-gradient(135deg, #e94560, #533483);
-            border: none;
-            color: white;
-            padding: 14px 32px;
-            border-radius: 50px;
-            font-size: 17px;
-            font-weight: 700;
-            cursor: pointer;
-            min-width: 120px;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .modal-btn:active {
-            transform: scale(0.95);
-        }
-
-        @media (max-width: 400px) {
-            .card {
-                padding: 28px 18px;
-            }
-            input, select {
-                padding: 14px 16px;
-                font-size: 15px;
-            }
-            .btn {
-                padding: 15px;
-            }
-        }
-
-        @supports (padding: max(0px)) {
-            body {
-                padding-left: max(16px, env(safe-area-inset-left));
-                padding-right: max(16px, env(safe-area-inset-right));
-                padding-bottom: max(16px, env(safe-area-inset-bottom));
-            }
-        }
-    </style>
+    @media (max-width: 500px) {
+      .container { padding: 24px 16px 16px; border-radius: 32px; }
+      h1 { font-size: 24px; }
+      .brand-header i { font-size: 28px; }
+      .subtitle-badge { font-size: 13px; padding: 6px 16px; }
+      .question-card .q-text { font-size: 18px; }
+      .options-grid { grid-template-columns: 1fr; gap: 10px; }
+      .option-btn { padding: 14px 12px; font-size: 15px; }
+      .timer-premium .time-num { font-size: 22px; }
+      .certificate-premium .cert-name { font-size: 28px; padding: 6px 24px; }
+      .certificate-premium .cert-title { font-size: 26px; }
+      .btn-gold { font-size: 18px; padding: 16px 20px; }
+      .progress-bar-wrapper { flex-direction: column; gap: 6px; align-items: center; }
+      .footer-premium .social-wrap a { padding: 6px 14px; font-size: 13px; }
+      .translation-area { font-size: 16px; }
+    }
+    @media (max-width: 380px) {
+      .container { padding: 16px 10px 12px; }
+      h1 { font-size: 20px; }
+      .question-card .q-text { font-size: 16px; }
+      .translation-area { font-size: 14px; }
+    }
+    .text-center { text-align: center; }
+    .hidden { display: none !important; }
+  </style>
 </head>
 <body>
-    <div class="shape"></div>
-    <div class="shape"></div>
-    <div class="shape"></div>
 
-    <div class="card">
-        <div class="header">
-            <div class="icon-circle">📋</div>
-            <h1>استمارة التقديم</h1>
-            <p>أدخل بياناتك وسيتم إرسالها للبوت</p>
-        </div>
+<div class="container" id="app">
+  <div class="brand-header">
+    <i class="fas fa-stethoscope"></i>
+    <h1>Radiology <span>Quiz</span></h1>
+  </div>
+  <div class="text-center">
+    <span class="subtitle-badge"><i class="fas fa-gem"></i> 50 Questions – $0.5 per correct answer</span>
+  </div>
 
-        <form id="requestForm" novalidate>
-            <div class="form-group">
-                <label><span class="required">*</span> الاسم الثلاثي</label>
-                <input type="text" id="fullName" placeholder="الاسم الكامل" required autocomplete="name">
-            </div>
-            <div class="form-group">
-                <label><span class="required">*</span> رقم الهاتف</label>
-                <input type="tel" id="phone" placeholder="مثال: 07701234567" required pattern="[0-9+]{7,15}" autocomplete="tel">
-            </div>
-            <div class="form-group">
-                <label><span class="required">*</span> حساب الانستغرام</label>
-                <input type="text" id="instagram" placeholder="اسم المستخدم بدون @" required autocomplete="off">
-            </div>
-            <div class="form-group">
-                <label><span class="required">*</span> العنوان</label>
-                <input type="text" id="address" placeholder="المحافظة / المنطقة" required autocomplete="street-address">
-            </div>
-            <div class="form-group">
-                <label><span class="required">*</span> الحالة الدراسية</label>
-                <select id="studyStatus" required>
-                    <option value="" disabled selected>اختر الحالة الدراسية</option>
-                    <option value="طالب">طالب</option>
-                    <option value="خريج">خريج</option>
-                    <option value="موظف">موظف</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label><span class="required">*</span> الحالة الاجتماعية</label>
-                <select id="maritalStatus" required>
-                    <option value="" disabled selected>اختر الحالة الاجتماعية</option>
-                    <option value="اعزب">اعزب</option>
-                    <option value="متزوج">متزوج</option>
-                </select>
-            </div>
-            <!-- السؤال الجديد: العمل السابق في البيجات -->
-            <div class="form-group">
-                <label><span class="required">*</span> هل عملت بأحد البيجات سابقاً؟</label>
-                <select id="prevWork" required>
-                    <option value="" disabled selected>اختر الإجابة</option>
-                    <option value="نعم">نعم</option>
-                    <option value="لا">لا</option>
-                </select>
-            </div>
-            <!-- خانة المهارات -->
-            <div class="form-group">
-                <label><span class="required">*</span> المهارات</label>
-                <input type="text" id="skills" placeholder="أدخل مهاراتك (مثلاً: تصميم، كتابة، برمجة)" required autocomplete="off">
-            </div>
-            <!-- الوقت المتفرغ -->
-            <div class="form-group">
-                <label><span class="required">*</span> الوقت المتفرغ</label>
-                <select id="availableTime" required>
-                    <option value="" disabled selected>اختر الوقت</option>
-                    <option value="صباحا">صباحاً</option>
-                    <option value="مساءا">مساءاً</option>
-                    <option value="طول اليوم">طول اليوم</option>
-                </select>
-            </div>
-            <button type="submit" class="btn" id="submitBtn">إرسال الطلب</button>
-        </form>
+  <!-- Register Form -->
+  <div id="registerForm">
+    <div class="error-box" id="errorMsg">
+      <i class="fas fa-exclamation-circle"></i>
+      <span id="errorText"></span>
     </div>
-
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal-box">
-            <div class="modal-icon" id="modalIcon">⚠️</div>
-            <div class="modal-title" id="modalTitle">تنبيه</div>
-            <div class="modal-text" id="modalMessage">يرجى تشغيل الصفحة من خلال خادم محلي أو استضافة.</div>
-            <button class="modal-btn" id="closeModalBtn">حسناً</button>
-        </div>
+    <div class="form-group">
+      <label><i class="fas fa-user"></i> Full Name (ثلاثي)</label>
+      <div class="input-wrapper">
+        <input type="text" id="fullName" placeholder="Example: Ahmed Mohamed Ali" required>
+      </div>
     </div>
+    <div class="form-group">
+      <label><i class="fab fa-instagram"></i> Instagram (without @)</label>
+      <div class="input-wrapper">
+        <input type="text" id="instagram" placeholder="example" required>
+      </div>
+    </div>
+    <button class="btn-gold" id="startBtn">
+      <i class="fas fa-play"></i> Start Quiz
+    </button>
+  </div>
 
-    <script>
-        (function() {
-            // بيانات البوت
-            const BOT_TOKEN = '8946526389:AAFmpsOgtGGv3nYqYcN1k8Ve0T59RXkhM9E';
-            const CHAT_ID = '639100062';
-            const API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+  <!-- Quiz Area -->
+  <div id="quizArea" class="quiz-area">
+    <div class="question-header">
+      <span class="q-counter"><i class="fas fa-question-circle" style="color:#d4af37;"></i> Question <span id="qNum">1</span>/50</span>
+      <div class="timer-premium">
+        <i class="fas fa-hourglass-half"></i>
+        <span class="time-num" id="timerDisplay">15</span>
+      </div>
+    </div>
+    <div class="question-card">
+      <div class="q-text" id="questionText">Question here</div>
+      <button class="btn-translate" id="translateBtn"><i class="fas fa-language"></i> إظهار الترجمة</button>
+      <div class="translation-area" id="translationArea">الترجمة العربية هنا</div>
+    </div>
+    <div class="options-grid" id="optionsContainer"></div>
+    <div class="progress-bar-wrapper">
+      <span class="stat"><i class="fas fa-check-circle" style="color:#27ae60;"></i> Correct: <span class="num-gold" id="correctCount">0</span></span>
+      <span class="stat"><i class="fas fa-coins" style="color:#d4af37;"></i> Earnings: <span class="num-gold" id="earnings">0.00</span>$</span>
+    </div>
+  </div>
 
-            const form = document.getElementById('requestForm');
-            const submitBtn = document.getElementById('submitBtn');
-            const modalOverlay = document.getElementById('modalOverlay');
-            const modalIcon = document.getElementById('modalIcon');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalMessage = document.getElementById('modalMessage');
-            const closeModalBtn = document.getElementById('closeModalBtn');
+  <!-- Certificate -->
+  <div id="certificate" class="certificate-premium">
+    <div class="cert-title"><i class="fas fa-award"></i> Certificate of Achievement</div>
+    <div class="cert-sub">This certificate is awarded to</div>
+    <div class="cert-name" id="certName">Full Name</div>
+    <div class="cert-detail">For successfully passing the Radiology & Ultrasound Quiz<br>with <strong id="certCorrect">0</strong> correct answers out of 50</div>
+    <div class="stamp">🌟 You are excellent</div>
+    <div class="cert-footer"><i class="fas fa-calendar-alt"></i> Issued on: <span id="certDate"></span></div>
+  </div>
 
-            // تحذير إذا تم فتح الصفحة مباشرة من ملف (بدون خادم)
-            if (window.location.protocol === 'file:') {
-                showModal('⚠️', 'تنبيه هام', 'الصفحة مفتوحة من ملف مباشر. يجب تشغيلها عبر Live Server أو استضافة لتعمل خاصية الإرسال.');
-            }
+  <!-- Fail Message -->
+  <div id="failMessage" class="fail-premium">
+    <h2><i class="fas fa-frown"></i> You didn't reach 25 correct</h2>
+    <p>You answered <span id="failCorrect">0</span> questions correctly.<br>You need 25 or more to get the certificate.</p>
+    <p>Your earnings: <span class="fail-amount" id="failEarnings">0.00</span>$</p>
+  </div>
 
-            function showModal(icon, title, message) {
-                modalIcon.textContent = icon;
-                modalTitle.textContent = title;
-                modalMessage.textContent = message;
-                modalOverlay.classList.add('active');
-            }
+  <!-- Footer -->
+  <div class="footer-premium">
+    <p class="credit">Designed by <strong>مجتبى كريم</strong></p>
+    <div class="social-wrap">
+      <a href="https://www.instagram.com/mojtabakr1.sc?igsh=bXR0YjM1MzJ0NmE0" target="_blank">
+        <i class="fab fa-instagram"></i> @mojtabakr1.sc
+      </a>
+    </div>
+    <div class="coop">
+      In collaboration with <strong>ONERAY</strong> Academy
+      <div class="social-wrap" style="margin-top: 10px;">
+        <a href="https://www.instagram.com/oneray.academy?igsh=Y29vd3ZsbWV2bncy" target="_blank">
+          <i class="fab fa-instagram"></i> @oneray.academy
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 
-            function closeModal() {
-                modalOverlay.classList.remove('active');
-            }
+<script type="module">
+  import { initializeApp } from "firebase/app";
+  import { getDatabase, ref, set, push, get, query, orderByChild, equalTo, update } from "firebase/database";
 
-            closeModalBtn.addEventListener('click', closeModal);
-            modalOverlay.addEventListener('click', (e) => {
-                if (e.target === modalOverlay) closeModal();
-            });
+  const firebaseConfig = {
+    apiKey: "AIzaSyA-vIzeLRmYbB1-81aggpnbHL7CUSe6Y_Y",
+    authDomain: "racedasia.firebaseapp.com",
+    databaseURL: "https://racedasia-default-rtdb.firebaseio.com",
+    projectId: "racedasia",
+    storageBucket: "racedasia.firebasestorage.app",
+    messagingSenderId: "159044675488",
+    appId: "1:159044675488:web:641310448492c6fb1fe6c5",
+    measurementId: "G-BBW3KBJT3X"
+  };
 
-            function escapeHtml(text) {
-                return String(text)
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;');
-            }
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
+  // =================================================================
+  // 50 سؤال (5 سونار + 15 أشعة + 15 مفراس + 15 رنين)
+  // =================================================================
+  const rawQuestions = [
+    // 5 Ultrasound (1-5)
+    { en: "What is the most common transducer frequency used for thyroid ultrasound?", ar: "ما هو التردد الأكثر شيوعاً لمتحول السونار المستخدم لتصوير الغدة الدرقية؟", opts: ["3-5 MHz", "7-15 MHz", "1-3 MHz", "20-30 MHz"], correct: 1 },
+    { en: "Which ultrasound finding is highly specific for a simple renal cyst?", ar: "أي علامة سونارية تعتبر محددة للكيس الكلوي البسيط؟", opts: ["Posterior acoustic shadowing", "Internal echoes", "Anechoic with posterior enhancement", "Thick irregular wall"], correct: 2 },
+    { en: "In carotid Doppler, a PSV of 250 cm/s in the ICA indicates what degree of stenosis (NASCET criteria)?", ar: "في دوبلر السباتي، سرعة الذروة الانقباضية 250 سم/ث في الشريان السباتي الباطن تشير إلى أي درجة من التضيق (حسب معايير NASCET)؟", opts: ["<50%", "50-69%", "70-99%", "Occlusion"], correct: 2 },
+    { en: "What is the most sensitive ultrasound sign for early testicular torsion?", ar: "ما هي العلامة السونارية الأكثر حساسية للانفتال الخصوي المبكر؟", opts: ["Increased color Doppler flow", "Absent flow with whirlpool sign", "Enlarged epididymis", "Hydrocele"], correct: 1 },
+    { en: "In renal Doppler, a resistive index (RI) of 0.65 is considered:", ar: "في دوبلر الكلى، مؤشر المقاومة (RI) بقيمة 0.65 يعتبر:", opts: ["Abnormally high", "Normal", "Indicates stenosis", "Suggests rejection"], correct: 1 },
+    // 15 X-Ray (6-20)
+    { en: "On a chest X-ray, the normal position of an endotracheal tube tip is:", ar: "في صورة الصدر الشعاعية، الموضع الطبيعي لطرف الأنبوب الرغامي هو:", opts: ["At the carina", "3-5 cm above the carina", "In the right main bronchus", "At the level of the aortic arch"], correct: 1 },
+    { en: "The primary function of a collimator in X-ray is to:", ar: "الوظيفة الأساسية للكوليماتور في جهاز الأشعة هي:", opts: ["Generate X-rays", "Reduce scatter and dose", "Convert X-rays to digital image", "Cool the tube"], correct: 1 },
+    { en: "The Silhouette Sign on chest X-ray indicates:", ar: "علامة الصور الظلية في صورة الصدر تشير إلى:", opts: ["Normal mediastinal border", "Loss of normal interface between two structures (pathology)", "Pneumothorax", "Pleural effusion"], correct: 1 },
+    { en: "Rigler's Sign on abdominal X-ray is diagnostic of:", ar: "علامة ريجلر في صورة البطن تشخص:", opts: ["Small bowel obstruction", "Pneumoperitoneum (free air)", "Renal stone", "Pancreatic calcification"], correct: 1 },
+    { en: "The 'Air Crescent Sign' on chest X-ray is classically seen in:", ar: "علامة الهلال الهوائي في صورة الصدر تُرى بشكل كلاسيكي في:", opts: ["Pulmonary edema", "Aspergilloma (fungal ball)", "Lobar pneumonia", "Atelectasis"], correct: 1 },
+    { en: "A widened mediastinum (>8 cm) on trauma chest X-ray suggests:", ar: "اتساع المنصف (>8 سم) في صورة الصدر عند الإصابات يشير إلى:", opts: ["Aortic rupture", "Pericardial effusion", "Mediastinal tumor", "Sternal fracture"], correct: 0 },
+    { en: "The 'Onion Skin' periosteal reaction is characteristic of:", ar: "تفاعل السمحاق بقشر البصل هو سمة مميزة لـ:", opts: ["Osteosarcoma", "Ewing's sarcoma", "Osteochondroma", "Simple bone cyst"], correct: 1 },
+    { en: "Ivory vertebra on spine X-ray is most commonly associated with:", ar: "الفقرة العاجية في صورة العمود الفقري ترتبط غالباً بـ:", opts: ["Osteoporosis", "Metastatic disease (prostate/breast)", "Tuberculosis", "Scheuermann's disease"], correct: 1 },
+    { en: "The Scimitar Sign on chest X-ray indicates:", ar: "علامة السيف المنحني في صورة الصدر تشير إلى:", opts: ["Anomalous pulmonary venous return", "Aortic dissection", "Pulmonary hypertension", "Diaphragmatic hernia"], correct: 0 },
+    { en: "Which of the following is the most sensitive imaging for non-displaced femoral neck fracture?", ar: "أي من التالي هو الفحص الأكثر حساسية لكسر عنق الفخذ غير المنزاح؟", opts: ["X-ray", "CT", "MRI", "Ultrasound"], correct: 2 },
+    { en: "The 'Hair-on-End' appearance on skull X-ray is seen in:", ar: "مظهر الرأس المشعر في صورة الجمجمة يُرى في:", opts: ["Sickle cell anemia", "Ewing sarcoma", "Multiple myeloma", "Paget's disease"], correct: 0 },
+    { en: "A 'Sunburst' periosteal reaction is highly suggestive of:", ar: "تفاعل السمحاق المشع (Sunburst) يشير بقوة إلى:", opts: ["Benign tumor", "Osteosarcoma", "Healing fracture", "Chronic osteomyelitis"], correct: 1 },
+    { en: "Which X-ray sign is seen in a patient with pneumoperitoneum and indicates free intraperitoneal air?", ar: "أي علامة شعاعية تُرى في استرواح الصفاق وتشير إلى وجود هواء حر داخل الصفاق؟", opts: ["Rigler's sign", "Air-fluid level", "Crescent sign", "Ground-glass opacity"], correct: 0 },
+    { en: "The normal angle of the costophrenic angle on upright chest X-ray is:", ar: "الزاوية الضلعية الحجابية الطبيعية في صورة الصدر الواقفة تكون:", opts: ["Obtuse (>90°)", "Acute (<90°)", "Straight (180°)", "Irregular"], correct: 0 },
+    { en: "A 'Bowler Hat' sign on a radiograph of the spine is associated with:", ar: "علامة قبعة البولينج في صورة العمود الفقري ترتبط بـ:", opts: ["Compression fracture", "Osteophyte formation", "Spinal metastasis", "Disc herniation"], correct: 0 },
+    // 15 CT (21-35)
+    { en: "The Hounsfield Unit (HU) of water on CT is:", ar: "وحدة هاونسفيلد للماء في المفراس هي:", opts: ["-1000", "-100", "0", "+1000"], correct: 2 },
+    { en: "The most commonly used intravenous contrast agent in CT is:", ar: "المادة الأكثر استخداماً كعامل تباين وريدي في المفراس هي:", opts: ["Barium", "Gadolinium", "Iodine", "CO2"], correct: 2 },
+    { en: "The typical delay time for portal venous phase imaging of the liver on CT is:", ar: "وقت التأخير النموذجي لمرحلة الوريدي البابي في المفراس للكبد هو:", opts: ["20-30 seconds", "70-80 seconds", "3-5 minutes", "10 minutes"], correct: 1 },
+    { en: "An adrenal adenoma on non-contrast CT typically shows density:", ar: "الورم الغدي الكظري الحميد في المفراس بدون تباين تظهر كثافته:", opts: [">30 HU", "<10 HU", "20-30 HU", ">50 HU"], correct: 1 },
+    { en: "The characteristic imaging finding of hepatocellular carcinoma (HCC) on dynamic CT is:", ar: "العلامة التصويرية المميزة لسرطان الخلايا الكبدية في المفراس الديناميكي هي:", opts: ["Enhancement in arterial phase and washout in venous phase", "Hypodense in all phases", "Delayed enhancement", "No enhancement"], correct: 0 },
+    { en: "Grade III germinal matrix hemorrhage (intraventricular with ventricular dilatation) in preterm infants can cause:", ar: "النزيف حول البطينات من الدرجة الثالثة (داخل البطينات مع توسع) عند الخدج يمكن أن يسبب:", opts: ["No significant sequelae", "Hydrocephalus", "Cerebral palsy", "Seizures only"], correct: 1 },
+    { en: "The most sensitive phase to detect active extravasation of contrast in GI bleeding on CT angiography is:", ar: "المرحلة الأكثر حساسية للكشف عن تسرب التباين النشط في النزيف الهضمي بتصوير الأوعية المقطعي هي:", opts: ["Early arterial phase", "Late arterial/parenchymal phase", "Venous phase", "Delayed phase"], correct: 1 },
+    { en: "Dual-energy CT helps differentiate uric acid stones from calcium stones based on:", ar: "المفراس ثنائي الطاقة يساعد في التمييز بين حصوات حمض البوليك والكالسيوم بناءً على:", opts: ["Stone density", "Stone composition via spectral analysis", "Stone size", "Patient's pH"], correct: 1 },
+    { en: "The 'Halo Sign' around a pulmonary nodule on CT most likely indicates:", ar: "علامة الهالة حول عقيدة رئوية في المفراس تشير غالباً إلى:", opts: ["Hemorrhage around the nodule", "Calcification", "Atelectasis", "Air trapping"], correct: 0 },
+    { en: "The effective radiation dose in CT is calculated by multiplying DLP (dose-length product) by:", ar: "الجرعة الفعالة في المفراس تُحسب بضرب DLP (ناتج طول الجرعة) في:", opts: ["k-factor specific to body region", "Patient's weight", "Tube current", "Scan time"], correct: 0 },
+    { en: "Bosniak category IIF renal cyst requires:", ar: "الكيسة الكلوية من تصنيف Bosniak IIF تتطلب:", opts: ["Immediate surgery", "Follow-up imaging (surveillance)", "No follow-up", "Biopsy"], correct: 1 },
+    { en: "The 'Double Duct Sign' on CT abdomen is highly suggestive of:", ar: "علامة القناة المزدوجة في المفراس البطني تشير بقوة إلى:", opts: ["Pancreatic head tumor causing dilation of both CBD and pancreatic duct", "Gallstone disease", "Choledochal cyst", "Pancreatic divisum"], correct: 0 },
+    { en: "The 'Empty Vein Sign' on CT brain is a sign of:", ar: "علامة الوريد الفارغ في المفراس الدماغي هي علامة على:", opts: ["Cerebral venous thrombosis", "Arteriovenous malformation", "Aneurysm", "Subarachnoid hemorrhage"], correct: 0 },
+    { en: "PET/CT is most valuable in oncology for:", ar: "PET/CT ذو قيمة كبيرة في الأورام لـ:", opts: ["Staging, detecting metastases, and assessing treatment response", "Screening for all cancers", "Monitoring bone density", "Assessing organ perfusion"], correct: 0 },
+    { en: "On CT, an acute parenchymal hemorrhage typically appears as:", ar: "في المفراس، النزيف الحاد في الحمة يظهر عادةً كـ:", opts: ["Hypodense (<30 HU)", "Hyperdense (>60 HU)", "Isointense", "Cystic"], correct: 1 },
+    // 15 MRI (36-50)
+    { en: "On T2-weighted MRI, CSF appears as:", ar: "في الرنين المغناطيسي المرجح بـ T2، يظهر السائل الدماغي الشوكي كـ:", opts: ["Low signal (dark)", "Intermediate signal", "High signal (bright)", "No signal"], correct: 2 },
+    { en: "The primary contrast agent used in brain MRI is:", ar: "المادة المتباينة الأساسية المستخدمة في رنين الدماغ هي:", opts: ["Iodine", "Gadolinium", "Barium", "Iron"], correct: 1 },
+    { en: "STIR sequence in MRI is used to:", ar: "تسلسل STIR في الرنين المغناطيسي يُستخدم لـ:", opts: ["Detect acute hemorrhage", "Suppress fat signal to highlight edema", "Evaluate blood flow", "Quantify iron deposition"], correct: 1 },
+    { en: "Diffusion-weighted imaging (DWI) is most useful for detecting:", ar: "تصوير الانتشار (DWI) مفيد جداً للكشف عن:", opts: ["Acute ischemic stroke (restricted diffusion)", "Chronic microbleeds", "Fatty liver", "Bone metastases"], correct: 0 },
+    { en: "In DCE-MRI of the breast, a Type III (washout) kinetic curve is suspicious for:", ar: "في DCE-MRI للثدي، المنحنى الحركي من النوع الثالث (Washout) مريب لـ:", opts: ["Benign lesion", "Malignant tumor", "Inflammatory change", "Fibroadenoma"], correct: 1 },
+    { en: "Gadolinium is contraindicated in patients with:", ar: "يُمنع استخدام الغادولينيوم في المرضى الذين يعانون من:", opts: ["Diabetes", "Severe renal failure (risk of NSF)", "Hypertension", "Asthma"], correct: 1 },
+    { en: "MR Spectroscopy (MRS) is used to assess:", ar: "التحليل الطيفي بالرنين المغناطيسي (MRS) يُستخدم لتقييم:", opts: ["Blood flow", "Metabolite concentrations (e.g., NAA, choline, lactate) for tumor characterization", "Fat content", "Calcium deposition"], correct: 1 },
+    { en: "The 'Dual Rim Sign' on SWI MRI is characteristic of:", ar: "علامة الحلقة المزدوجة في SWI بالرنين المغناطيسي هي سمة مميزة لـ:", opts: ["Brain abscess", "Glioblastoma", "Meningioma", "Stroke"], correct: 0 },
+    { en: "PI-RADS scoring system for prostate MRI is based on:", ar: "نظام تسجيل PI-RADS في رنين البروستاتا يعتمد على:", opts: ["T2, DWI, and DCE sequences", "T1 only", "Patient's age", "PSA level"], correct: 0 },
+    { en: "Which MRI sequence is best for evaluating the menisci of the knee?", ar: "أي تسلسل في الرنين المغناطيسي هو الأفضل لتقييم الغضاريف الهلالية في الركبة؟", opts: ["T1", "PD (Proton Density) with fat suppression", "STIR", "GRE"], correct: 1 },
+    { en: "On T1-weighted MRI, fat appears as:", ar: "في الرنين المغناطيسي المرجح بـ T1، تظهر الدهون كـ:", opts: ["Low signal (dark)", "High signal (bright)", "Intermediate", "None"], correct: 1 },
+    { en: "FLAIR sequence on brain MRI is useful to:", ar: "تسلسل FLAIR في رنين الدماغ مفيد لـ:", opts: ["Enhance subarachnoid space", "Suppress CSF signal to better visualize periventricular lesions", "Detect hemorrhage", "Assess perfusion"], correct: 1 },
+    { en: "Time-of-Flight (TOF) MRA is based on:", ar: "تصوير الأوعية بالرنين بطريقة TOF يعتمد على:", opts: ["Inflow effect of unsaturated spins", "Gadolinium injection", "Phase contrast", "Tissue susceptibility"], correct: 0 },
+    { en: "SWI (Susceptibility-Weighted Imaging) is sensitive for detecting:", ar: "تصوير SWI حساس للكشف عن:", opts: ["Microhemorrhages and calcifications", "Edema", "Tumor perfusion", "Inflammation"], correct: 0 },
+    { en: "In spinal MRI, a vertebral metastasis typically shows:", ar: "في رنين العمود الفقري، النقيلة الفقرية تظهر عادةً:", opts: ["Normal signal", "Low T1 and high T2 signal with involvement of posterior elements", "High T1 signal (fatty)", "Cystic changes"], correct: 1 }
+  ];
 
-                if (!form.checkValidity()) {
-                    form.reportValidity();
-                    return;
-                }
+  // ===== خلط الخيارات عشوائياً =====
+  function shuffleOptions(q) {
+    const options = q.opts.map((text, idx) => ({ text, originalIdx: idx }));
+    for (let i = options.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [options[i], options[j]] = [options[j], options[i]];
+    }
+    const shuffledOpts = options.map(o => o.text);
+    const newCorrect = options.findIndex(o => o.originalIdx === q.correct);
+    return { ...q, opts: shuffledOpts, correct: newCorrect };
+  }
 
-                // جمع البيانات بما فيها الحقول الجديدة
-                const fullName = document.getElementById('fullName').value.trim();
-                const phone = document.getElementById('phone').value.trim();
-                const instagram = document.getElementById('instagram').value.trim();
-                const address = document.getElementById('address').value.trim();
-                const studyStatus = document.getElementById('studyStatus').value;
-                const maritalStatus = document.getElementById('maritalStatus').value;
-                const prevWork = document.getElementById('prevWork').value;
-                const skills = document.getElementById('skills').value.trim();
-                const availableTime = document.getElementById('availableTime').value;
+  const questions = rawQuestions.map(q => shuffleOptions(q));
 
-                submitBtn.disabled = true;
-                const originalHTML = submitBtn.innerHTML;
-                submitBtn.innerHTML = `جارٍ الإرسال <span class="loader"></span>`;
+  // ======== متغيرات الحالة ========
+  let currentUserKey = null;
+  let currentQuestionIndex = 0;
+  let correctAnswers = 0;
+  let earnings = 0;
+  let timerInterval = null;
+  let timeLeft = 15;
+  let isAnswering = false;
+  let quizFinished = false;
 
-                const message = 
-                    `🔔 <b>طلب جديد</b>\n\n` +
-                    `👤 <b>الاسم:</b> ${escapeHtml(fullName)}\n` +
-                    `📞 <b>الهاتف:</b> ${escapeHtml(phone)}\n` +
-                    `📸 <b>انستغرام:</b> @${escapeHtml(instagram)}\n` +
-                    `📍 <b>العنوان:</b> ${escapeHtml(address)}\n` +
-                    `🎓 <b>الدراسة:</b> ${escapeHtml(studyStatus)}\n` +
-                    `💍 <b>الاجتماعية:</b> ${escapeHtml(maritalStatus)}\n` +
-                    `💼 <b>عمل سابق في البيجات:</b> ${escapeHtml(prevWork)}\n` +
-                    `🛠 <b>المهارات:</b> ${escapeHtml(skills)}\n` +
-                    `⏰ <b>الوقت المتفرغ:</b> ${escapeHtml(availableTime)}`;
+  // ======== عناصر DOM ========
+  const registerDiv = document.getElementById('registerForm');
+  const quizDiv = document.getElementById('quizArea');
+  const certDiv = document.getElementById('certificate');
+  const failDiv = document.getElementById('failMessage');
+  const errorBox = document.getElementById('errorMsg');
+  const errorText = document.getElementById('errorText');
+  const fullNameInput = document.getElementById('fullName');
+  const instagramInput = document.getElementById('instagram');
+  const startBtn = document.getElementById('startBtn');
+  const qNumSpan = document.getElementById('qNum');
+  const timerDisplay = document.getElementById('timerDisplay');
+  const questionText = document.getElementById('questionText');
+  const translationArea = document.getElementById('translationArea');
+  const translateBtn = document.getElementById('translateBtn');
+  const optionsContainer = document.getElementById('optionsContainer');
+  const correctCountSpan = document.getElementById('correctCount');
+  const earningsSpan = document.getElementById('earnings');
+  const certName = document.getElementById('certName');
+  const certCorrect = document.getElementById('certCorrect');
+  const certDate = document.getElementById('certDate');
+  const failCorrect = document.getElementById('failCorrect');
+  const failEarnings = document.getElementById('failEarnings');
 
-                try {
-                    const response = await fetch(API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: CHAT_ID,
-                            text: message,
-                            parse_mode: 'HTML'
-                        })
-                    });
+  // ======== الترجمة ========
+  translateBtn.addEventListener('click', () => {
+    const area = document.getElementById('translationArea');
+    const isVisible = area.classList.contains('visible');
+    if (isVisible) {
+      area.classList.remove('visible');
+      translateBtn.innerHTML = '<i class="fas fa-language"></i> إظهار الترجمة';
+    } else {
+      area.classList.add('visible');
+      translateBtn.innerHTML = '<i class="fas fa-language"></i> إخفاء الترجمة';
+    }
+  });
 
-                    const result = await response.json();
+  function showError(msg) { errorBox.style.display = 'flex'; errorText.textContent = msg; }
+  function hideError() { errorBox.style.display = 'none'; }
 
-                    if (result.ok) {
-                        showModal('✅', 'تم الإرسال بنجاح', 'تم إرسال بياناتك  بنجاح وسيتم التواصل معك قريباً.');
-                        form.reset();
-                        // إعادة تعيين القوائم المنسدلة إلى الخيار الافتراضي
-                        document.getElementById('studyStatus').selectedIndex = 0;
-                        document.getElementById('maritalStatus').selectedIndex = 0;
-                        document.getElementById('prevWork').selectedIndex = 0;
-                        document.getElementById('availableTime').selectedIndex = 0;
-                    } else {
-                        console.error('Telegram API error:', result);
-                        showModal('❌', 'فشل الإرسال', `السبب: ${result.description || 'خطأ غير معروف'}`);
-                    }
-                } catch (error) {
-                    console.error('Fetch error:', error);
-                    let errorMsg = 'تأكد من تشغيل الصفحة على خادم محلي (Live Server) أو استضافة، وليس من ملف مباشر.';
-                    if (window.location.protocol !== 'file:') {
-                        errorMsg = 'تعذر الاتصال بالخادم، تأكد من اتصالك بالإنترنت أو حاول لاحقاً.';
-                    }
-                    showModal('❌', 'خطأ في الاتصال', errorMsg);
-                } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalHTML;
-                }
-            });
-        })();
-    </script>
+  // ===== التحقق من وجود المستخدم (بحساسية تجاه حالة الأحرف) =====
+  async function isUserExists(instagram) {
+    try {
+      const instagramLower = instagram.toLowerCase().trim();
+      const usersRef = ref(db, 'users');
+      const instaQuery = query(usersRef, orderByChild('instagram'), equalTo(instagramLower));
+      const snapshot = await get(instaQuery);
+      return snapshot.exists();
+    } catch (e) {
+      console.error('Error checking user existence:', e);
+      return false;
+    }
+  }
+
+  // ===== بدء الاختبار =====
+  startBtn.addEventListener('click', async () => {
+    const name = fullNameInput.value.trim();
+    let instagram = instagramInput.value.trim().replace(/^@/, '').toLowerCase();
+
+    // التحقق من صحة الإدخال
+    if (!name || !instagram) {
+      showError('Please enter full name and Instagram handle.');
+      return;
+    }
+    hideError();
+
+    // تعطيل الزر أثناء التحقق
+    startBtn.disabled = true;
+    startBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Checking...';
+
+    // التحقق من وجود الحساب في قاعدة البيانات
+    const exists = await isUserExists(instagram);
+
+    if (exists) {
+      showError('⚠️ This Instagram account is already registered. You cannot retake the quiz.');
+      startBtn.disabled = false;
+      startBtn.innerHTML = '<i class="fas fa-play"></i> Start Quiz';
+      return;
+    }
+
+    // إنشاء مستخدم جديد
+    try {
+      const newUserRef = push(ref(db, 'users'));
+      currentUserKey = newUserRef.key;
+      await set(newUserRef, {
+        name: name,
+        instagram: instagram,   // مخزنة بصيغة صغيرة
+        startTime: Date.now(),
+        correctAnswers: 0,
+        earnings: 0,
+        finished: false
+      });
+    } catch (e) {
+      console.error('Error creating user:', e);
+      showError('حدث خطأ في الاتصال بقاعدة البيانات. حاول مرة أخرى.');
+      startBtn.disabled = false;
+      startBtn.innerHTML = '<i class="fas fa-play"></i> Start Quiz';
+      return;
+    }
+
+    // بدء الاختبار
+    startBtn.disabled = false;
+    startBtn.innerHTML = '<i class="fas fa-play"></i> Start Quiz';
+    registerDiv.style.display = 'none';
+    quizDiv.style.display = 'block';
+    currentQuestionIndex = 0;
+    correctAnswers = 0;
+    earnings = 0;
+    quizFinished = false;
+    showQuestion();
+  });
+
+  // ===== عرض السؤال =====
+  function showQuestion() {
+    if (currentQuestionIndex >= questions.length || quizFinished) {
+      finishQuiz();
+      return;
+    }
+    const q = questions[currentQuestionIndex];
+    qNumSpan.textContent = currentQuestionIndex + 1;
+    questionText.textContent = q.en;
+    translationArea.textContent = q.ar;
+    translationArea.classList.remove('visible');
+    translateBtn.innerHTML = '<i class="fas fa-language"></i> إظهار الترجمة';
+
+    optionsContainer.innerHTML = '';
+    q.opts.forEach((opt, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = `${String.fromCharCode(65 + idx)}. ${opt}`;
+      btn.dataset.idx = idx;
+      btn.addEventListener('click', () => handleAnswer(idx));
+      optionsContainer.appendChild(btn);
+    });
+
+    correctCountSpan.textContent = correctAnswers;
+    earningsSpan.textContent = earnings.toFixed(2);
+    clearInterval(timerInterval);
+    timeLeft = 15;
+    timerDisplay.textContent = timeLeft;
+    isAnswering = false;
+    enableOptions(true);
+
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      timerDisplay.textContent = timeLeft;
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        if (!isAnswering) moveToNext();
+      }
+    }, 1000);
+  }
+
+  function enableOptions(en) {
+    document.querySelectorAll('.option-btn').forEach(b => b.disabled = !en);
+  }
+
+  function handleAnswer(selectedIdx) {
+    if (isAnswering || quizFinished) return;
+    isAnswering = true;
+    clearInterval(timerInterval);
+    const q = questions[currentQuestionIndex];
+    const isCorrect = (selectedIdx === q.correct);
+    const btns = document.querySelectorAll('.option-btn');
+    enableOptions(false);
+    btns.forEach((btn, idx) => {
+      if (idx === q.correct) btn.classList.add('selected-correct');
+      if (idx === selectedIdx && !isCorrect) btn.classList.add('selected-wrong');
+    });
+    if (isCorrect) {
+      correctAnswers++;
+      earnings += 0.5;
+      correctCountSpan.textContent = correctAnswers;
+      earningsSpan.textContent = earnings.toFixed(2);
+      if (currentUserKey) {
+        update(ref(db, `users/${currentUserKey}`), { correctAnswers, earnings });
+      }
+    }
+    setTimeout(() => moveToNext(), 1500);
+  }
+
+  function moveToNext() {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < questions.length) {
+      showQuestion();
+    } else {
+      finishQuiz();
+    }
+  }
+
+  function finishQuiz() {
+    quizFinished = true;
+    clearInterval(timerInterval);
+    quizDiv.style.display = 'none';
+    if (currentUserKey) {
+      update(ref(db, `users/${currentUserKey}`), { finished: true });
+    }
+    if (correctAnswers >= 25) {
+      showCertificate();
+    } else {
+      showFailMessage();
+    }
+  }
+
+  function showCertificate() {
+    certName.textContent = fullNameInput.value.trim();
+    certCorrect.textContent = correctAnswers;
+    certDate.textContent = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    certDiv.style.display = 'block';
+    failDiv.style.display = 'none';
+  }
+
+  function showFailMessage() {
+    failCorrect.textContent = correctAnswers;
+    failEarnings.textContent = earnings.toFixed(2);
+    failDiv.style.display = 'block';
+    certDiv.style.display = 'none';
+  }
+
+  console.log('✅ تم تحميل الكود مع منع التكرار النهائي.');
+</script>
 </body>
 </html>
